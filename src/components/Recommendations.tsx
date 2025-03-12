@@ -1,7 +1,8 @@
 
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Clock, Tag, Leaf, Home, Droplet, Shield } from "lucide-react";
+import { ArrowRight, Clock, Leaf, Home, Droplet, Shield } from "lucide-react";
+import { Link } from "react-router-dom";
 
 const EcoTreatment = ({ treatment }: { treatment: {
   id: number;
@@ -177,10 +178,12 @@ const Recommendations = () => {
                   </div>
                 </div>
 
-                <Button className="rounded-full bg-primary hover:bg-primary/90">
-                  Get Your Eco Beauty Guide
-                  <ArrowRight className="ml-2 h-4 w-4" />
-                </Button>
+                <Link to="/eco-beauty-guide">
+                  <Button className="rounded-full bg-primary hover:bg-primary/90">
+                    Get Your Eco Beauty Guide
+                    <ArrowRight className="ml-2 h-4 w-4" />
+                  </Button>
+                </Link>
               </div>
 
               <div className="relative">
