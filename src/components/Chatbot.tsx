@@ -20,6 +20,11 @@ type Message = {
   timestamp: Date;
 };
 
+type PromptCategory = {
+  name: string;
+  prompts: string[];
+};
+
 const initialMessages: Message[] = [
   {
     id: "1",
@@ -29,11 +34,34 @@ const initialMessages: Message[] = [
   },
 ];
 
-const suggestionPrompts = [
-  "What products are good for dry skin?",
-  "How do I treat dark circles?",
-  "Find the right foundation shade for me",
-  "Recommend a skincare routine",
+const promptCategories: PromptCategory[] = [
+  {
+    name: "Skin Analysis",
+    prompts: [
+      "Analyze my skin for acne, dryness, or pigmentation",
+      "What's my skin type?",
+      "How can I improve my skin texture?",
+      "Check for signs of aging on my face",
+    ],
+  },
+  {
+    name: "Treatment Recommendations",
+    prompts: [
+      "Suggest treatments for dark circles",
+      "Best treatments for my skin type",
+      "Step-by-step skincare routine",
+      "Non-invasive anti-aging options",
+    ],
+  },
+  {
+    name: "Fashion & Style",
+    prompts: [
+      "What hairstyle suits my face shape?",
+      "Suggest eyewear for my face",
+      "Makeup shades for my skin tone",
+      "Fashion trends for my body type",
+    ],
+  },
 ];
 
 const Chatbot = () => {
@@ -41,6 +69,7 @@ const Chatbot = () => {
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
+  const [activeCategory, setActiveCategory] = useState<string>(promptCategories[0].name);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   const scrollToBottom = () => {
@@ -201,17 +230,34 @@ const Chatbot = () => {
           {/* Suggestion chips */}
           {messages.length <= 2 && (
             <div className="p-3 bg-white border-t border-gray-100">
-              <p className="text-xs text-gray-500 mb-2">Suggested questions:</p>
-              <div className="flex flex-wrap gap-2">
-                {suggestionPrompts.map((prompt, index) => (
+              <div className="flex border-b pb-2 mb-2 overflow-x-auto">
+                {promptCategories.map((category) => (
                   <button
-                    key={index}
-                    onClick={() => handlePromptClick(prompt)}
-                    className="text-xs py-1 px-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 transition-colors whitespace-nowrap"
+                    key={category.name}
+                    onClick={() => setActiveCategory(category.name)}
+                    className={cn(
+                      "whitespace-nowrap px-3 py-1 mr-2 text-xs rounded-full",
+                      activeCategory === category.name
+                        ? "bg-primary text-white"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    )}
                   >
-                    {prompt}
+                    {category.name}
                   </button>
                 ))}
+              </div>
+              <div className="flex flex-wrap gap-2">
+                {promptCategories
+                  .find((cat) => cat.name === activeCategory)
+                  ?.prompts.map((prompt, index) => (
+                    <button
+                      key={index}
+                      onClick={() => handlePromptClick(prompt)}
+                      className="text-xs py-1 px-3 bg-gray-100 hover:bg-gray-200 rounded-full text-gray-700 transition-colors whitespace-nowrap"
+                    >
+                      {prompt}
+                    </button>
+                  ))}
               </div>
             </div>
           )}
@@ -247,7 +293,8 @@ const Chatbot = () => {
         </div>
       </div>
 
-      <style jsx>{`
+      <style>
+        {`
         .dot-typing {
           position: relative;
           left: -9999px;
@@ -291,7 +338,8 @@ const Chatbot = () => {
               10014px 0 0 0 #9ca3af;
           }
         }
-      `}</style>
+        `}
+      </style>
     </>
   );
 };
