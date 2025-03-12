@@ -49,8 +49,8 @@ const Hero = () => {
               Discover Your <span className="text-primary">Unique Beauty</span> With Advanced Analysis
             </h1>
             <p className="text-base md:text-lg text-muted-foreground max-w-lg">
-              Upload your photo or take a picture for instant skin analysis and personalized product 
-              recommendations tailored just for you.
+              Upload your photo or take a picture for instant skin analysis and personalized eco-friendly
+              beauty treatments tailored just for you.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 pt-4">
               <Button
@@ -82,16 +82,23 @@ const Hero = () => {
               <div className="absolute inset-0 bg-gradient-to-br from-blush-200 to-skin-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
               <div className="glass-card relative h-full rounded-3xl overflow-hidden p-4 backdrop-blur-xl">
                 <div className="h-full w-full rounded-2xl overflow-hidden bg-gradient-to-br from-skin-100 to-blush-100 flex flex-col items-center justify-center p-8 text-center">
-                  <div className="mb-6 p-4 rounded-full bg-white/50 backdrop-blur-sm">
-                    <Upload className="h-10 w-10 text-primary" />
+                  <img 
+                    src="https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
+                    alt="Eco-friendly beauty" 
+                    className="w-full h-full object-cover rounded-xl opacity-70 absolute inset-0"
+                  />
+                  <div className="relative z-10 bg-white/80 backdrop-blur-sm p-6 rounded-xl">
+                    <div className="mb-6 p-4 rounded-full bg-white/70">
+                      <Upload className="h-10 w-10 text-primary" />
+                    </div>
+                    <h3 className="text-xl font-semibold mb-2">Upload Your Photo</h3>
+                    <p className="text-sm text-muted-foreground mb-6">
+                      Drag and drop your photo here or click to browse files
+                    </p>
+                    <Button className="rounded-full bg-white hover:bg-white/90 text-primary">
+                      Choose File
+                    </Button>
                   </div>
-                  <h3 className="text-xl font-semibold mb-2">Upload Your Photo</h3>
-                  <p className="text-sm text-muted-foreground mb-6">
-                    Drag and drop your photo here or click to browse files
-                  </p>
-                  <Button className="rounded-full bg-white hover:bg-white/90 text-primary">
-                    Choose File
-                  </Button>
                 </div>
               </div>
             </div>
@@ -100,7 +107,7 @@ const Hero = () => {
 
         <div className="mt-auto mb-10 pt-20">
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 md:gap-10">
-            {['Advanced AI Analysis', 'Personalized Recommendations', 'Product Matching', 'Expert Support'].map((feature, index) => (
+            {['Advanced AI Analysis', 'Personalized Recommendations', 'Eco-Friendly Treatments', 'Expert Support'].map((feature, index) => (
               <div 
                 key={index}
                 className="glass-card rounded-xl p-4 transition-all duration-500 ease-out opacity-0 translate-y-10"
