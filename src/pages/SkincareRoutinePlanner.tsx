@@ -1,9 +1,9 @@
 
-import React from "react";
+import React, { useState } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { ArrowRight, Calendar, Sun, Moon, CircleCheck, ChevronDown } from "lucide-react";
+import { ArrowRight, Calendar, Sun, Moon, CircleCheck, ChevronDown, PenLine } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const routines = [
@@ -85,6 +85,12 @@ const routines = [
 ];
 
 const SkincareRoutinePlanner = () => {
+  const [selectedSkinType, setSelectedSkinType] = useState<string | null>(null);
+  
+  const handleSelectSkinType = (skinType: string) => {
+    setSelectedSkinType(skinType === selectedSkinType ? null : skinType);
+  };
+
   return (
     <div className="min-h-screen bg-background" data-testid="skincare-planner-page">
       <Navbar />
@@ -101,6 +107,15 @@ const SkincareRoutinePlanner = () => {
             <p className="text-xl text-muted-foreground max-w-2xl mx-auto">
               Sustainable & Natural Beauty Schedule for Your Skin Type
             </p>
+          </div>
+          
+          <div className="flex justify-center mb-8">
+            <Link to="/custom-planner">
+              <Button className="rounded-full gap-2">
+                <PenLine className="h-4 w-4" />
+                Create Your Custom Routine
+              </Button>
+            </Link>
           </div>
           
           <div className="glass-card rounded-xl p-6 md:p-8 mb-12">
@@ -209,31 +224,55 @@ const SkincareRoutinePlanner = () => {
           
           <div className="space-y-4 mb-12">
             {routines.map((routine, index) => (
-              <details key={index} className="group glass-card rounded-xl overflow-hidden">
-                <summary className="flex items-center justify-between p-5 cursor-pointer">
+              <div 
+                key={index} 
+                className={`glass-card rounded-xl overflow-hidden transition-all duration-300 ${selectedSkinType === routine.type ? 'ring-2 ring-primary' : ''}`}
+              >
+                <div 
+                  className="flex items-center justify-between p-5 cursor-pointer"
+                  onClick={() => handleSelectSkinType(routine.type)}
+                >
                   <h3 className="text-lg font-medium">{routine.type}</h3>
-                  <ChevronDown className="h-5 w-5 transition-transform group-open:rotate-180" />
-                </summary>
-                <div className="p-5 pt-0 border-t border-skin-100">
-                  <div className="grid md:grid-cols-3 gap-4">
-                    <div className="bg-green-50 p-4 rounded-lg">
-                      <h4 className="font-medium mb-2">Exfoliation</h4>
-                      <p className="text-sm font-medium text-green-700 mb-1">{routine.exfoliation.days}</p>
-                      <p className="text-sm">{routine.exfoliation.treatment}</p>
+                  <ChevronDown className={`h-5 w-5 transition-transform ${selectedSkinType === routine.type ? 'rotate-180' : ''}`} />
+                </div>
+                
+                {selectedSkinType === routine.type && (
+                  <div className="p-5 pt-0 border-t border-skin-100 animate-fade-in">
+                    <div className="grid md:grid-cols-3 gap-4">
+                      <div className="bg-green-50 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Exfoliation</h4>
+                        <p className="text-sm font-medium text-green-700 mb-1">{routine.exfoliation.days}</p>
+                        <p className="text-sm">{routine.exfoliation.treatment}</p>
+                      </div>
+                      <div className="bg-purple-50 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Masks</h4>
+                        <p className="text-sm font-medium text-purple-700 mb-1">{routine.mask.days}</p>
+                        <p className="text-sm">{routine.mask.treatment}</p>
+                      </div>
+                      <div className="bg-blue-50 p-4 rounded-lg">
+                        <h4 className="font-medium mb-2">Self-Care Day</h4>
+                        <p className="text-sm font-medium text-blue-700 mb-1">{routine.selfCare.day}</p>
+                        <p className="text-sm">{routine.selfCare.treatment}</p>
+                      </div>
                     </div>
-                    <div className="bg-purple-50 p-4 rounded-lg">
-                      <h4 className="font-medium mb-2">Masks</h4>
-                      <p className="text-sm font-medium text-purple-700 mb-1">{routine.mask.days}</p>
-                      <p className="text-sm">{routine.mask.treatment}</p>
-                    </div>
-                    <div className="bg-blue-50 p-4 rounded-lg">
-                      <h4 className="font-medium mb-2">Self-Care Day</h4>
-                      <p className="text-sm font-medium text-blue-700 mb-1">{routine.selfCare.day}</p>
-                      <p className="text-sm">{routine.selfCare.treatment}</p>
+                    
+                    <div className="mt-4 pt-4 border-t border-skin-100">
+                      <Button 
+                        size="sm" 
+                        variant="outline" 
+                        className="text-primary border-primary rounded-full hover:bg-primary/10"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          localStorage.setItem("selectedSkinType", routine.type);
+                          window.alert(`${routine.type} plan saved as your default!`);
+                        }}
+                      >
+                        Set as My Default Routine
+                      </Button>
                     </div>
                   </div>
-                </div>
-              </details>
+                )}
+              </div>
             ))}
           </div>
           
@@ -264,12 +303,18 @@ const SkincareRoutinePlanner = () => {
             </ul>
           </div>
           
-          <div className="text-center">
-            <p className="mb-6 text-lg">Want personalized recommendations based on your specific skin concerns?</p>
+          <div className="flex justify-center gap-4 flex-wrap">
             <Link to="/analysis">
               <Button className="bg-primary hover:bg-primary/90 rounded-full px-6">
                 Get Your Skin Analysis
                 <ArrowRight className="ml-2 h-4 w-4" />
+              </Button>
+            </Link>
+            
+            <Link to="/custom-planner">
+              <Button variant="outline" className="rounded-full px-6 border-primary text-primary hover:bg-primary/10">
+                Create Custom Routine
+                <PenLine className="ml-2 h-4 w-4" />
               </Button>
             </Link>
           </div>
