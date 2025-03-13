@@ -1,8 +1,8 @@
-
 import React, { useState, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, AlertCircle, Check, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
+import { Link } from "react-router-dom";
 
 const AnalysisTool = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -18,7 +18,6 @@ const AnalysisTool = () => {
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Handle file selection
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
       const file = e.target.files[0];
@@ -28,7 +27,6 @@ const AnalysisTool = () => {
     }
   };
 
-  // Handle file drop
   const handleDrop = (e: React.DragEvent<HTMLDivElement>) => {
     e.preventDefault();
     if (e.dataTransfer.files && e.dataTransfer.files[0]) {
@@ -43,7 +41,6 @@ const AnalysisTool = () => {
     e.preventDefault();
   };
 
-  // Handle camera access
   const startCamera = async () => {
     setShowCamera(true);
     try {
@@ -56,7 +53,6 @@ const AnalysisTool = () => {
     }
   };
 
-  // Take photo from camera
   const capturePhoto = () => {
     if (videoRef.current) {
       const canvas = document.createElement("canvas");
@@ -78,7 +74,6 @@ const AnalysisTool = () => {
     }
   };
 
-  // Stop camera
   const stopCamera = () => {
     if (videoRef.current && videoRef.current.srcObject) {
       const stream = videoRef.current.srcObject as MediaStream;
@@ -89,19 +84,16 @@ const AnalysisTool = () => {
     }
   };
 
-  // Trigger file input click
   const triggerFileInput = () => {
     if (fileInputRef.current) {
       fileInputRef.current.click();
     }
   };
 
-  // Simulate analysis
   const startAnalysis = () => {
     setIsAnalyzing(true);
     setAnalysisProgress(0);
 
-    // Simulate analysis progress
     const interval = setInterval(() => {
       setAnalysisProgress((prev) => {
         const newProgress = prev + Math.random() * 15;
@@ -127,7 +119,6 @@ const AnalysisTool = () => {
     }, 200);
   };
 
-  // Reset everything
   const resetAnalysis = () => {
     setSelectedFile(null);
     setPreviewUrl(null);
@@ -303,8 +294,13 @@ const AnalysisTool = () => {
                 </div>
 
                 <div className="pt-4 flex justify-center">
-                  <Button className="bg-primary hover:bg-primary/90 w-full sm:w-auto">
-                    View Detailed Recommendations
+                  <Button 
+                    className="bg-primary hover:bg-primary/90 w-full sm:w-auto"
+                    asChild
+                  >
+                    <Link to="/recommendations">
+                      View Detailed Recommendations
+                    </Link>
                   </Button>
                 </div>
               </div>

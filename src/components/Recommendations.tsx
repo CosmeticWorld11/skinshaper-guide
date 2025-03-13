@@ -68,7 +68,7 @@ const treatments = [
     id: 1,
     title: "Honey Oatmeal Mask",
     description: "Soothing and hydrating treatment for dry and sensitive skin",
-    image: "https://images.unsplash.com/photo-1614806687007-2215a9db3b1b?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    image: "https://images.unsplash.com/photo-1551648340-80c7d945bc3c?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
     icon: <Droplet className="h-4 w-4" />,
     time: "15 mins",
     ingredients: ["Honey", "Oatmeal", "Yogurt"],
@@ -77,7 +77,7 @@ const treatments = [
     id: 2,
     title: "Avocado Moisture Treatment",
     description: "Rich in antioxidants and natural oils for deep hydration",
-    image: "https://images.unsplash.com/photo-1556801712-76c8eb07bbc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    image: "https://images.unsplash.com/photo-1543362906-acfc16c67564?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
     icon: <Leaf className="h-4 w-4" />,
     time: "20 mins",
     ingredients: ["Avocado", "Olive Oil", "Aloe Vera"],
@@ -86,7 +86,7 @@ const treatments = [
     id: 3,
     title: "Green Tea Toner",
     description: "Anti-inflammatory and antioxidant-rich skin refresher",
-    image: "https://images.unsplash.com/photo-1627483297929-38d348ae6b25?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    image: "https://images.unsplash.com/photo-1565733312276-4a521fcc5566?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
     icon: <Shield className="h-4 w-4" />,
     time: "5 mins",
     ingredients: ["Green Tea", "Witch Hazel", "Cucumber"],
@@ -95,7 +95,7 @@ const treatments = [
     id: 4,
     title: "Coconut Coffee Scrub",
     description: "Natural exfoliant that revitalizes and brightens skin",
-    image: "https://images.unsplash.com/photo-1570696516188-ade861b84a49?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
+    image: "https://images.unsplash.com/photo-1559056199-641a0ac8b55e?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80",
     icon: <Home className="h-4 w-4" />,
     time: "10 mins",
     ingredients: ["Coffee Grounds", "Coconut Oil", "Brown Sugar"],
@@ -189,7 +189,7 @@ const Recommendations = () => {
               <div className="relative">
                 <div className="aspect-square rounded-xl overflow-hidden">
                   <img
-                    src="https://images.unsplash.com/photo-1629198688000-71f23e745b6e?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
+                    src="https://images.unsplash.com/photo-1606471191009-63994c53433b?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80"
                     alt="Eco Beauty Routine"
                     className="w-full h-full object-cover"
                   />
