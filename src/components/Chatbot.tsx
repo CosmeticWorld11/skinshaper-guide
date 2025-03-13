@@ -10,6 +10,7 @@ import {
   User,
   Image,
   Sparkles,
+  CornerDownLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -71,6 +72,7 @@ const Chatbot = () => {
   const [isTyping, setIsTyping] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>(promptCategories[0].name);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -79,6 +81,12 @@ const Chatbot = () => {
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  useEffect(() => {
+    if (isOpen && inputRef.current) {
+      inputRef.current.focus();
+    }
+  }, [isOpen]);
 
   const handleSendMessage = () => {
     if (inputValue.trim() === "") return;
@@ -275,19 +283,32 @@ const Chatbot = () => {
                 onKeyDown={handleKeyPress}
                 placeholder="Type your question..."
                 className="flex-1 bg-transparent py-2 px-2 outline-none text-sm"
+                ref={inputRef}
               />
-              <button
-                onClick={handleSendMessage}
-                disabled={inputValue.trim() === ""}
-                className={cn(
-                  "p-1 rounded-full",
-                  inputValue.trim() === ""
-                    ? "text-gray-400"
-                    : "text-primary hover:bg-primary/10"
-                )}
-              >
-                <Send className="h-5 w-5" />
-              </button>
+              
+              {/* Enter Button */}
+              <div className="flex items-center gap-1">
+                <button
+                  className="text-gray-400 bg-gray-200 px-2 py-1 rounded-md flex items-center text-xs mr-1"
+                  aria-label="Press Enter to send"
+                >
+                  <CornerDownLeft className="h-3.5 w-3.5 mr-1" />
+                  Enter
+                </button>
+                
+                <button
+                  onClick={handleSendMessage}
+                  disabled={inputValue.trim() === ""}
+                  className={cn(
+                    "p-1 rounded-full",
+                    inputValue.trim() === ""
+                      ? "text-gray-400"
+                      : "text-primary hover:bg-primary/10"
+                  )}
+                >
+                  <Send className="h-5 w-5" />
+                </button>
+              </div>
             </div>
           </div>
         </div>
