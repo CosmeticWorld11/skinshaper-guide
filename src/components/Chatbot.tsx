@@ -64,6 +64,38 @@ const promptCategories: PromptCategory[] = [
   },
 ];
 
+// Define topic-specific responses for more relevant answers
+const responsesByTopic = {
+  skincare: [
+    "For dry skin, I recommend using a hydrating serum with hyaluronic acid followed by a rich moisturizer. Our hydrating collection has several options.",
+    "If you're dealing with acne, look for products containing salicylic acid or benzoyl peroxide. Our clarifying toner helps control excess oil and clear pores.",
+    "For sensitive skin, it's best to use fragrance-free products with soothing ingredients like aloe vera, chamomile, or centella asiatica.",
+    "A good anti-aging routine should include retinol, vitamin C, peptides, and sunscreen. Start with our beginner retinol serum if you're new to these ingredients.",
+    "Your skin barrier might be compromised if you're experiencing redness, irritation, and increased sensitivity. Focus on gentle cleansing and barrier repair products.",
+  ],
+  eco: [
+    "Our eco-friendly products use recyclable packaging and sustainably sourced ingredients to minimize environmental impact.",
+    "For sustainable beauty options, look for products with minimal packaging and natural, ethically sourced ingredients. Our eco-beauty guide has more details.",
+    "Our refillable container program allows you to reduce waste by purchasing only product refills after your initial purchase.",
+    "We have a complete line of vegan and cruelty-free products that perform just as well as traditional formulations.",
+    "All our eco-friendly products are free from microplastics, harmful preservatives, and synthetic fragrances.",
+  ],
+  fashion: [
+    "Current fashion trends include sustainable fabrics, vintage-inspired pieces, and minimalist designs. Check our style section for more inspiration.",
+    "When choosing glasses, consider the opposite shape of your face - round faces pair well with angular frames, while square faces look good with rounded frames.",
+    "For your skin tone, I'd recommend warm-toned makeup with golden or peach undertones. Our seasonal color analysis can help you find your perfect palette.",
+    "Capsule wardrobes are an excellent way to reduce fashion waste. Focus on high-quality pieces in neutral colors that can be mixed and matched easily.",
+    "The most flattering hairstyles for your face shape would emphasize your cheekbones while softening your jawline. Our virtual hair try-on tool can help you visualize options.",
+  ],
+  application: [
+    "You can find the weekly skincare planner by navigating to the 'Skincare Planner' section in the main menu or by going directly to /skincare-planner.",
+    "The custom routine builder allows you to create a personalized skincare routine based on your specific needs. Access it through the 'Custom Planner' section.",
+    "Our skin analysis tool uses advanced algorithms to assess your skin concerns from uploaded photos and provide tailored recommendations.",
+    "You can save your favorite products and routines by creating an account and using the bookmark feature on each item.",
+    "The eco-beauty guide section provides information about sustainable beauty practices and environmentally friendly product options.",
+  ],
+};
+
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
@@ -92,11 +124,55 @@ const Chatbot = () => {
       "skin", "beauty", "cosmetic", "treatment", "fashion", "makeup", "hair", 
       "routine", "product", "eco", "natural", "organic", "sustainable", 
       "skincare", "face", "body", "style", "trend", "website", "app", "application",
-      "guide", "recommendation", "planner", "analysis"
+      "guide", "recommendation", "planner", "analysis", "age", "aging", "wrinkle",
+      "pimple", "acne", "dry", "oily", "sensitive", "combination", "sunscreen",
+      "moisturizer", "cleanser", "toner", "serum", "retinol", "vitamin c",
+      "hyaluronic", "collagen", "exfoliate", "mask", "spf", "uv", "sun",
+      "color", "tone", "texture", "pattern", "clothes", "dress", "outfit",
+      "seasonal", "vegan", "cruelty-free", "recyclable", "refill", "packaging",
+      "ingredients", "clean", "green", "weekly", "daily", "morning", "night"
     ];
     
     const lowerCaseQuestion = question.toLowerCase();
     return relevantKeywords.some(keyword => lowerCaseQuestion.includes(keyword));
+  };
+
+  const analyzeQuestionTopic = (question: string): string => {
+    const skinKeywords = ["skin", "acne", "dry", "oily", "sensitive", "moisturizer", "cleanser", "toner", "serum", "retinol", "vitamin c", "hyaluronic", "routine", "aging", "wrinkle", "pimple", "texture", "exfoliate", "mask", "sunscreen", "spf"];
+    const ecoKeywords = ["eco", "sustainable", "natural", "organic", "vegan", "cruelty-free", "recyclable", "refill", "packaging", "ingredients", "clean", "green"];
+    const fashionKeywords = ["fashion", "makeup", "hair", "style", "trend", "color", "tone", "pattern", "clothes", "dress", "outfit", "seasonal", "hairstyle", "eyewear", "face shape", "body type"];
+    const appKeywords = ["website", "app", "application", "guide", "recommendation", "planner", "analysis", "weekly", "daily", "morning", "night", "routine", "save", "favorite", "custom"];
+
+    const lowerCaseQuestion = question.toLowerCase();
+    
+    let maxMatches = 0;
+    let bestMatch = "application"; // Default topic
+
+    const topics = [
+      { name: "skincare", keywords: skinKeywords },
+      { name: "eco", keywords: ecoKeywords },
+      { name: "fashion", keywords: fashionKeywords },
+      { name: "application", keywords: appKeywords }
+    ];
+
+    topics.forEach(topic => {
+      const matches = topic.keywords.filter(keyword => lowerCaseQuestion.includes(keyword)).length;
+      if (matches > maxMatches) {
+        maxMatches = matches;
+        bestMatch = topic.name;
+      }
+    });
+
+    return bestMatch;
+  };
+
+  const generateResponse = (input: string): string => {
+    // Determine which topic the question belongs to
+    const topic = analyzeQuestionTopic(input);
+    const topicResponses = responsesByTopic[topic as keyof typeof responsesByTopic];
+    
+    // Pick a relevant response from the appropriate topic
+    return topicResponses[Math.floor(Math.random() * topicResponses.length)];
   };
 
   const handleSendMessage = () => {
@@ -132,19 +208,6 @@ const Chatbot = () => {
       setMessages((prev) => [...prev, newBotMessage]);
       setIsTyping(false);
     }, 1000 + Math.random() * 2000);
-  };
-
-  const generateResponse = (input: string): string => {
-    const responses = [
-      "I'd recommend our hydrating serum for dry skin concerns. It contains hyaluronic acid which helps retain moisture.",
-      "For your concerns about acne, look for products with salicylic acid or benzoyl peroxide. Our clarifying toner could be a good option.",
-      "Based on your skin type, you might benefit from a gentle cleanser followed by a lightweight moisturizer.",
-      "That's a great question! For anti-aging concerns, ingredients like retinol, vitamin C, and peptides can be very effective.",
-      "If you're looking for makeup recommendations, I'd need to know more about your skin tone and type. Would you like to upload a photo for analysis?",
-      "For sustainable beauty options, consider products with minimal packaging and natural ingredients. Our eco-beauty guide has more details.",
-      "The current fashion trends include sustainable fabrics and vintage-inspired styles. Check our style section for more inspiration.",
-    ];
-    return responses[Math.floor(Math.random() * responses.length)];
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
