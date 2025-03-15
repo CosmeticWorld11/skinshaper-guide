@@ -10,7 +10,6 @@ import {
   User,
   Image,
   Sparkles,
-  CornerDownLeft,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -88,6 +87,18 @@ const Chatbot = () => {
     }
   }, [isOpen]);
 
+  const isRelevantQuestion = (question: string): boolean => {
+    const relevantKeywords = [
+      "skin", "beauty", "cosmetic", "treatment", "fashion", "makeup", "hair", 
+      "routine", "product", "eco", "natural", "organic", "sustainable", 
+      "skincare", "face", "body", "style", "trend", "website", "app", "application",
+      "guide", "recommendation", "planner", "analysis"
+    ];
+    
+    const lowerCaseQuestion = question.toLowerCase();
+    return relevantKeywords.some(keyword => lowerCaseQuestion.includes(keyword));
+  };
+
   const handleSendMessage = () => {
     if (inputValue.trim() === "") return;
 
@@ -102,11 +113,19 @@ const Chatbot = () => {
     setInputValue("");
     setIsTyping(true);
 
-    // Simulate AI response
+    // Generate response based on relevance
     setTimeout(() => {
+      let responseContent: string;
+      
+      if (isRelevantQuestion(newUserMessage.content)) {
+        responseContent = generateResponse(newUserMessage.content);
+      } else {
+        responseContent = "Ask questions or doubt related to fashion, cosmetic treatment and eco friendly treatment for skin and any other queries related to application.";
+      }
+      
       const newBotMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: generateResponse(inputValue),
+        content: responseContent,
         isUser: false,
         timestamp: new Date(),
       };
@@ -122,6 +141,8 @@ const Chatbot = () => {
       "Based on your skin type, you might benefit from a gentle cleanser followed by a lightweight moisturizer.",
       "That's a great question! For anti-aging concerns, ingredients like retinol, vitamin C, and peptides can be very effective.",
       "If you're looking for makeup recommendations, I'd need to know more about your skin tone and type. Would you like to upload a photo for analysis?",
+      "For sustainable beauty options, consider products with minimal packaging and natural ingredients. Our eco-beauty guide has more details.",
+      "The current fashion trends include sustainable fabrics and vintage-inspired styles. Check our style section for more inspiration.",
     ];
     return responses[Math.floor(Math.random() * responses.length)];
   };
@@ -285,30 +306,18 @@ const Chatbot = () => {
                 className="flex-1 bg-transparent py-2 px-2 outline-none text-sm"
                 ref={inputRef}
               />
-              
-              {/* Enter Button */}
-              <div className="flex items-center gap-1">
-                <button
-                  className="text-gray-400 bg-gray-200 px-2 py-1 rounded-md flex items-center text-xs mr-1"
-                  aria-label="Press Enter to send"
-                >
-                  <CornerDownLeft className="h-3.5 w-3.5 mr-1" />
-                  Enter
-                </button>
-                
-                <button
-                  onClick={handleSendMessage}
-                  disabled={inputValue.trim() === ""}
-                  className={cn(
-                    "p-1 rounded-full",
-                    inputValue.trim() === ""
-                      ? "text-gray-400"
-                      : "text-primary hover:bg-primary/10"
-                  )}
-                >
-                  <Send className="h-5 w-5" />
-                </button>
-              </div>
+              <button
+                onClick={handleSendMessage}
+                disabled={inputValue.trim() === ""}
+                className={cn(
+                  "p-1 rounded-full",
+                  inputValue.trim() === ""
+                    ? "text-gray-400"
+                    : "text-primary hover:bg-primary/10"
+                )}
+              >
+                <Send className="h-5 w-5" />
+              </button>
             </div>
           </div>
         </div>
