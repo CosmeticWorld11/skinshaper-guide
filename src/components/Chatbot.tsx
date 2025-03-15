@@ -10,14 +10,21 @@ import {
   User,
   Image,
   Sparkles,
+  ThumbsUp,
+  ThumbsDown,
+  Loader2,
+  RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "@/hooks/use-toast";
 
 type Message = {
   id: string;
   content: string;
   isUser: boolean;
   timestamp: Date;
+  liked?: boolean;
+  disliked?: boolean;
 };
 
 type PromptCategory = {
@@ -28,7 +35,7 @@ type PromptCategory = {
 const initialMessages: Message[] = [
   {
     id: "1",
-    content: "👋 Hi there! I'm your beauty assistant. How can I help you today?",
+    content: "👋 Hi there! I'm your beauty assistant. How can I help you today? I can answer questions about skincare, eco-friendly beauty products, fashion, and our website features.",
     isUser: false,
     timestamp: new Date(),
   },
@@ -96,14 +103,25 @@ const responsesByTopic = {
   ],
 };
 
+// Custom conversation starters based on topics
+const conversationStarters = [
+  "Tell me about eco-friendly skincare options",
+  "How do I build a daily skincare routine?",
+  "What makeup trends are popular this season?",
+  "Where can I find the skin analysis tool?",
+  "What's the difference between serums and moisturizers?",
+];
+
 const Chatbot = () => {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(initialMessages);
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>(promptCategories[0].name);
+  const [hasInteracted, setHasInteracted] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
 
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -117,7 +135,24 @@ const Chatbot = () => {
     if (isOpen && inputRef.current) {
       inputRef.current.focus();
     }
-  }, [isOpen]);
+
+    // Show inactivity prompt if user hasn't interacted after a while
+    if (isOpen && messages.length === 1) {
+      const inactivityTimer = setTimeout(() => {
+        if (!hasInteracted && messages.length === 1) {
+          const suggestionMessage: Message = {
+            id: Date.now().toString(),
+            content: "Need some ideas? Try asking about skincare routines, eco-friendly products, or fashion trends!",
+            isUser: false,
+            timestamp: new Date(),
+          };
+          setMessages(prev => [...prev, suggestionMessage]);
+        }
+      }, 10000); // 10 seconds
+
+      return () => clearTimeout(inactivityTimer);
+    }
+  }, [isOpen, hasInteracted, messages.length]);
 
   const isRelevantQuestion = (question: string): boolean => {
     const relevantKeywords = [
@@ -175,9 +210,34 @@ const Chatbot = () => {
     return topicResponses[Math.floor(Math.random() * topicResponses.length)];
   };
 
+  const handleFeedback = (messageId: string, isPositive: boolean) => {
+    setMessages(prev => 
+      prev.map(msg => {
+        if (msg.id === messageId) {
+          return {
+            ...msg,
+            liked: isPositive ? true : msg.liked,
+            disliked: !isPositive ? true : msg.disliked
+          };
+        }
+        return msg;
+      })
+    );
+
+    toast({
+      title: isPositive ? "Thank you for your feedback!" : "We'll improve our responses",
+      description: isPositive 
+        ? "We're glad our response was helpful." 
+        : "Thanks for letting us know. This helps us improve.",
+      duration: 3000,
+    });
+  };
+
   const handleSendMessage = () => {
     if (inputValue.trim() === "") return;
 
+    setHasInteracted(true);
+    
     const newUserMessage: Message = {
       id: Date.now().toString(),
       content: inputValue,
@@ -226,6 +286,23 @@ const Chatbot = () => {
 
   const toggleChat = () => {
     setIsOpen((prev) => !prev);
+    if (!isOpen) {
+      // Reset if closing and reopening
+      if (messages.length > 5) {
+        setMessages(initialMessages);
+        setHasInteracted(false);
+      }
+    }
+  };
+
+  const clearChat = () => {
+    setMessages(initialMessages);
+    setHasInteracted(false);
+    toast({
+      title: "Chat history cleared",
+      description: "Your conversation has been reset.",
+      duration: 3000,
+    });
   };
 
   const formatTime = (date: Date) => {
@@ -238,7 +315,7 @@ const Chatbot = () => {
       <button
         onClick={toggleChat}
         className={cn(
-          "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300",
+          "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 animate-bounce",
           isOpen ? "bg-gray-200" : "bg-primary text-white"
         )}
         aria-label="Chat with beauty assistant"
@@ -269,9 +346,21 @@ const Chatbot = () => {
                 <p className="text-xs opacity-80">Online | AI Powered</p>
               </div>
             </div>
-            <button onClick={toggleChat} className="p-1">
-              <ChevronDown className="h-5 w-5" />
-            </button>
+            <div className="flex items-center">
+              <button 
+                onClick={clearChat}
+                className="p-1 mr-2 hover:bg-primary-foreground/20 rounded-full transition-colors"
+                title="Clear chat history"
+              >
+                <RefreshCw className="h-4 w-4" />
+              </button>
+              <button 
+                onClick={toggleChat} 
+                className="p-1 hover:bg-primary-foreground/20 rounded-full transition-colors"
+              >
+                <ChevronDown className="h-5 w-5" />
+              </button>
+            </div>
           </div>
 
           {/* Chat Messages */}
@@ -279,12 +368,12 @@ const Chatbot = () => {
             {messages.map((message) => (
               <div
                 key={message.id}
-                className={cn("mb-4 max-w-[85%] flex", {
+                className={cn("mb-4 max-w-[85%] flex flex-col", {
                   "ml-auto": message.isUser,
                 })}
               >
                 <div
-                  className={cn("rounded-xl p-3 relative", {
+                  className={cn("rounded-xl p-3 relative animate-fade-in", {
                     "bg-primary text-white": message.isUser,
                     "bg-white border border-gray-200 shadow-sm": !message.isUser,
                   })}
@@ -303,15 +392,46 @@ const Chatbot = () => {
                   </div>
                   <p className="text-sm">{message.content}</p>
                 </div>
+                
+                {/* Feedback buttons for bot messages */}
+                {!message.isUser && (
+                  <div className="flex mt-1 self-start">
+                    <button 
+                      onClick={() => handleFeedback(message.id, true)}
+                      className={cn(
+                        "p-1 rounded-full mr-1 transition-colors",
+                        message.liked 
+                          ? "bg-green-100 text-green-600" 
+                          : "text-gray-400 hover:text-gray-600"
+                      )}
+                      aria-label="Helpful response"
+                    >
+                      <ThumbsUp className="h-3 w-3" />
+                    </button>
+                    <button 
+                      onClick={() => handleFeedback(message.id, false)}
+                      className={cn(
+                        "p-1 rounded-full transition-colors",
+                        message.disliked 
+                          ? "bg-red-100 text-red-600" 
+                          : "text-gray-400 hover:text-gray-600"
+                      )}
+                      aria-label="Unhelpful response"
+                    >
+                      <ThumbsDown className="h-3 w-3" />
+                    </button>
+                  </div>
+                )}
               </div>
             ))}
 
             {/* Typing indicator */}
             {isTyping && (
-              <div className="flex items-center mb-4 max-w-[85%]">
+              <div className="flex items-center mb-4 max-w-[85%] animate-fade-in">
                 <div className="bg-white border border-gray-200 rounded-xl p-3 shadow-sm">
-                  <div className="flex items-center">
-                    <span className="dot-typing"></span>
+                  <div className="flex items-center gap-2">
+                    <Loader2 className="h-4 w-4 text-primary animate-spin" />
+                    <span className="text-xs text-gray-500">Beauty Assistant is typing...</span>
                   </div>
                 </div>
               </div>
@@ -328,7 +448,7 @@ const Chatbot = () => {
                     key={category.name}
                     onClick={() => setActiveCategory(category.name)}
                     className={cn(
-                      "whitespace-nowrap px-3 py-1 mr-2 text-xs rounded-full",
+                      "whitespace-nowrap px-3 py-1 mr-2 text-xs rounded-full transition-colors",
                       activeCategory === category.name
                         ? "bg-primary text-white"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
@@ -354,9 +474,27 @@ const Chatbot = () => {
             </div>
           )}
 
+          {/* Quick Conversation Starters */}
+          {messages.length === 1 && (
+            <div className="p-3 bg-gray-50 border-t border-gray-200">
+              <p className="text-xs text-gray-500 mb-2">Try asking about:</p>
+              <div className="flex flex-wrap gap-2">
+                {conversationStarters.map((starter, index) => (
+                  <button
+                    key={index}
+                    onClick={() => handlePromptClick(starter)}
+                    className="text-xs py-1 px-3 bg-white border border-gray-200 hover:bg-gray-100 rounded-full text-gray-700 transition-colors whitespace-nowrap shadow-sm"
+                  >
+                    {starter}
+                  </button>
+                ))}
+              </div>
+            </div>
+          )}
+
           {/* Chat Input */}
           <div className="p-3 bg-white border-t border-gray-200">
-            <div className="flex items-center rounded-full bg-gray-100 px-3 py-1">
+            <div className="flex items-center rounded-full bg-gray-100 px-3 py-1 focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-white transition-all">
               <button className="p-1 text-gray-500 hover:text-primary">
                 <Image className="h-5 w-5" />
               </button>
