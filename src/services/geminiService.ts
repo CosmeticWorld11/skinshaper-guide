@@ -17,7 +17,7 @@ type GeminiResponse = {
 };
 
 export class GeminiService {
-  private apiKey: string | null = null;
+  private apiKey: string | null = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
   private static instance: GeminiService | null = null;
   
   // Singleton pattern
