@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, ShoppingBag, Search } from "lucide-react";
+import { Menu, X, User, Search, Book, Leaf, Calendar, CalendarPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -65,10 +65,28 @@ const Navbar = () => {
               Recommendations
             </Link>
             <Link
-              to="/fashion"
+              to="/blog"
               className="text-sm font-medium hover:text-primary transition-colors"
             >
-              Fashion
+              Blog
+            </Link>
+            <Link
+              to="/eco-beauty-guide"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Eco Beauty Guide
+            </Link>
+            <Link
+              to="/skincare-planner"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Skincare Planner
+            </Link>
+            <Link
+              to="/custom-planner"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Custom Planner
             </Link>
             <Link
               to="/about"
@@ -143,11 +161,32 @@ const Navbar = () => {
               Recommendations
             </Link>
             <Link
-              to="/fashion"
+              to="/blog"
               className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Fashion
+              Blog
+            </Link>
+            <Link
+              to="/eco-beauty-guide"
+              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Eco Beauty Guide
+            </Link>
+            <Link
+              to="/skincare-planner"
+              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Skincare Planner
+            </Link>
+            <Link
+              to="/custom-planner"
+              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Custom Planner
             </Link>
             <Link
               to="/about"
