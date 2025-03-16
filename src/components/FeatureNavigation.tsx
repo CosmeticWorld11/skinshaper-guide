@@ -32,20 +32,22 @@ const FeatureNavigation = () => {
   ];
 
   return (
-    <section className="py-16 bg-background">
+    <section className="py-12 bg-background">
       <div className="container mx-auto px-4">
-        <h2 className="text-2xl md:text-3xl font-serif font-semibold text-center mb-10">
+        <h2 className="text-2xl md:text-3xl font-serif font-semibold text-center mb-8">
           Explore Our Features
         </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
           {features.map((feature, index) => (
             <Link
               key={index}
               to={feature.path}
-              className="bg-white hover:bg-accent/10 border border-border rounded-xl p-6 text-center transition-all hover:shadow-md"
+              className="bg-white hover:bg-accent/10 border border-border rounded-xl p-5 text-center transition-all hover:shadow-md group"
             >
               <div className="flex flex-col items-center justify-center">
-                {feature.icon}
+                <div className="transform transition-transform group-hover:scale-110 duration-200">
+                  {feature.icon}
+                </div>
                 <h3 className="text-lg font-medium mb-2">{feature.title}</h3>
                 <p className="text-muted-foreground text-sm">
                   {feature.description}
