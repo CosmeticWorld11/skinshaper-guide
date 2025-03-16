@@ -73,8 +73,9 @@ Keep your answer concise (100 words maximum) and conversational.`
         }
       ];
 
+      // Updated API endpoint to use the correct version (v1 instead of v1beta)
       const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey,
+        "https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=" + apiKey,
         {
           method: "POST",
           headers: {
