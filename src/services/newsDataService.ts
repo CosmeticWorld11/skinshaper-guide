@@ -29,10 +29,9 @@ export const fetchNewsArticles = async (page?: string): Promise<NewsResponse> =>
   try {
     const queryParams = new URLSearchParams({
       apikey: API_KEY,
-      q: "Latest beauty and cosmetics trends",
-      country: "in,gb,us,wo",
-      language: "en",
-      category: "food,lifestyle,science,technology",
+      q: "Fashion cosmetics",
+      language: "en,hi,kn,ta,te",
+      category: "health,lifestyle,science,technology,world",
     });
     
     if (page) {
