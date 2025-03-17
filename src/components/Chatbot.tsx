@@ -21,6 +21,7 @@ import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { geminiService } from "@/services/geminiService";
 import GeminiApiSetup from "./GeminiApiSetup";
+import { useLocation } from "react-router-dom";
 
 type Message = {
   id: string;
@@ -84,9 +85,33 @@ const conversationStarters = [
   "What's the difference between serums and moisturizers?",
 ];
 
+const STORAGE_KEY = "beauty_assistant_chat";
+
 const Chatbot = () => {
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
-  const [messages, setMessages] = useState<Message[]>(initialMessages);
+  const [messages, setMessages] = useState<Message[]>(() => {
+    // Try to load saved messages from localStorage
+    const savedMessages = localStorage.getItem(STORAGE_KEY);
+    if (savedMessages) {
+      try {
+        // Parse the saved messages and ensure timestamps are Date objects
+        const parsedMessages = JSON.parse(savedMessages, (key, value) => {
+          // Convert timestamp strings back to Date objects
+          if (key === 'timestamp' && value) {
+            return new Date(value);
+          }
+          return value;
+        });
+        return parsedMessages;
+      } catch (error) {
+        console.error("Error parsing saved messages:", error);
+        return initialMessages;
+      }
+    }
+    return initialMessages;
+  });
+  
   const [inputValue, setInputValue] = useState("");
   const [isTyping, setIsTyping] = useState(false);
   const [activeCategory, setActiveCategory] = useState<string>(promptCategories[0].name);
@@ -101,9 +126,22 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  // Save messages to localStorage whenever they change
+  useEffect(() => {
+    if (messages.length > 0) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
+    }
+  }, [messages]);
+
   useEffect(() => {
     scrollToBottom();
   }, [messages]);
+
+  // Reset chat position when navigating between pages
+  useEffect(() => {
+    // Close chat when changing pages
+    setIsOpen(false);
+  }, [location.pathname]);
 
   useEffect(() => {
     if (isOpen && inputRef.current) {
@@ -118,7 +156,13 @@ const Chatbot = () => {
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, apiKeyMessage]);
+      setMessages(prev => {
+        // Check if this message already exists to avoid duplicates
+        if (!prev.some(msg => msg.content === apiKeyMessage.content)) {
+          return [...prev, apiKeyMessage];
+        }
+        return prev;
+      });
     }
 
     // Show inactivity prompt if user hasn't interacted after a while
@@ -131,7 +175,13 @@ const Chatbot = () => {
             isUser: false,
             timestamp: new Date(),
           };
-          setMessages(prev => [...prev, suggestionMessage]);
+          setMessages(prev => {
+            // Check if this message already exists to avoid duplicates
+            if (!prev.some(msg => msg.content === suggestionMessage.content)) {
+              return [...prev, suggestionMessage];
+            }
+            return prev;
+          });
         }
       }, 10000); // 10 seconds
 
@@ -149,7 +199,13 @@ const Chatbot = () => {
         isUser: false,
         timestamp: new Date(),
       };
-      setMessages(prev => [...prev, apiKeySetMessage]);
+      setMessages(prev => {
+        // Check if this message already exists to avoid duplicates
+        if (!prev.some(msg => msg.content === apiKeySetMessage.content)) {
+          return [...prev, apiKeySetMessage];
+        }
+        return prev;
+      });
     }
   };
 
@@ -192,7 +248,6 @@ const Chatbot = () => {
     setInputValue("");
     setIsTyping(true);
 
-    // Generate response using Gemini API
     try {
       // Get website context from previous messages
       const context = messages
@@ -200,10 +255,14 @@ const Chatbot = () => {
         .map(msg => msg.content)
         .join("\n");
       
+      // Include current page context
+      const pageContext = `User is currently on page: ${location.pathname}`;
+      const fullContext = `${context}\n${pageContext}`;
+      
       // Get response from Gemini API
       const aiResponse = await geminiService.generateResponse(
         newUserMessage.content,
-        context
+        fullContext
       );
       
       const newBotMessage: Message = {
@@ -247,18 +306,12 @@ const Chatbot = () => {
 
   const toggleChat = () => {
     setIsOpen((prev) => !prev);
-    if (!isOpen) {
-      // Reset if closing and reopening
-      if (messages.length > 5) {
-        setMessages(initialMessages);
-        setHasInteracted(false);
-      }
-    }
   };
 
   const clearChat = () => {
     setMessages(initialMessages);
     setHasInteracted(false);
+    localStorage.removeItem(STORAGE_KEY);
     toast({
       title: "Chat history cleared",
       description: "Your conversation has been reset.",
@@ -276,8 +329,8 @@ const Chatbot = () => {
       <button
         onClick={toggleChat}
         className={cn(
-          "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 animate-bounce",
-          isOpen ? "bg-gray-200" : "bg-primary text-white"
+          "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300",
+          isOpen ? "bg-gray-200" : "bg-primary text-white hover:bg-primary/90"
         )}
         aria-label="Chat with beauty assistant"
       >

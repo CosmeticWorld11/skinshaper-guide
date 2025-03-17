@@ -5,7 +5,6 @@ import Hero from "@/components/Hero";
 import AnalysisTool from "@/components/AnalysisTool";
 import FeatureNavigation from "@/components/FeatureNavigation";
 import Recommendations from "@/components/Recommendations";
-import Chatbot from "@/components/Chatbot";
 import Footer from "@/components/Footer";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -106,7 +105,6 @@ const Index = () => {
       
       <FeatureNavigation />
       <Recommendations />
-      <Chatbot />
       <Footer />
     </div>
   );
