@@ -60,7 +60,7 @@ export class GeminiService {
         {
           role: "user",
           parts: [{ 
-            text: `You are a helpful beauty assistant AI for a skincare and beauty website.
+            text: `You are a helpful beauty assistant AI for ECO Skin.
             
 Context about our website: ${context || "We offer eco-friendly beauty products, skincare routines, fashion tips, and personalized product recommendations."}
             
@@ -73,9 +73,9 @@ Keep your answer concise (100 words maximum) and conversational.`
         }
       ];
 
-      // Updated API endpoint for Gemini 1.0 Pro model
+      // Correct API endpoint for Gemini 1.0 Pro model
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: {

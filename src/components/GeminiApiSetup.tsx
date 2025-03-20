@@ -22,6 +22,7 @@ type GeminiApiSetupProps = {
 
 const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave }) => {
   const [apiKey, setApiKey] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     // Load API key when dialog opens
@@ -33,21 +34,61 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
     }
   }, [isOpen]);
 
-  const handleSave = () => {
+  const handleSave = async () => {
     if (!apiKey.trim()) {
       toast.error("Please enter a valid API key");
       return;
     }
     
-    geminiService.setApiKey(apiKey.trim());
-    toast.success("API key saved successfully");
-    onSave();
-    onClose();
+    setIsLoading(true);
+    
+    try {
+      // Test the API key with a simple request before saving
+      const testResponse = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey.trim()}`,
+        {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({
+            contents: [
+              {
+                role: "user",
+                parts: [{ text: "Hello" }]
+              }
+            ],
+            generationConfig: {
+              maxOutputTokens: 10,
+            },
+          }),
+        }
+      );
+      
+      if (!testResponse.ok) {
+        const errorData = await testResponse.json();
+        console.error("API key test failed:", errorData);
+        toast.error("Invalid API key. Please check and try again.");
+        setIsLoading(false);
+        return;
+      }
+      
+      // If we reached here, the key is valid
+      geminiService.setApiKey(apiKey.trim());
+      toast.success("API key verified and saved successfully");
+      onSave();
+      onClose();
+    } catch (error) {
+      console.error("Error testing API key:", error);
+      toast.error("Could not verify the API key. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md bg-white text-foreground">
+      <DialogContent className="sm:max-w-md bg-background text-foreground">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-foreground">
             <Key className="h-5 w-5" />
@@ -65,7 +106,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Enter your Gemini API key"
-              className="font-mono text-foreground bg-background"
+              className="font-mono text-foreground bg-background border-input"
             />
           </div>
           
@@ -86,13 +127,22 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
         </div>
         
         <DialogFooter className="sm:justify-between">
-          <Button variant="ghost" onClick={onClose}>
+          <Button variant="ghost" onClick={onClose} disabled={isLoading}>
             <X className="mr-2 h-4 w-4" />
             Cancel
           </Button>
-          <Button onClick={handleSave}>
-            <Save className="mr-2 h-4 w-4" />
-            Save API Key
+          <Button onClick={handleSave} disabled={isLoading}>
+            {isLoading ? (
+              <>
+                <span className="mr-2">Verifying...</span>
+                <span className="animate-spin">⋯</span>
+              </>
+            ) : (
+              <>
+                <Save className="mr-2 h-4 w-4" />
+                Save API Key
+              </>
+            )}
           </Button>
         </DialogFooter>
       </DialogContent>
