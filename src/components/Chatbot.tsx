@@ -330,7 +330,7 @@ const Chatbot = () => {
         onClick={toggleChat}
         className={cn(
           "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300",
-          isOpen ? "bg-gray-200" : "bg-primary text-white hover:bg-primary/90"
+          isOpen ? "bg-gray-200 hover:bg-gray-300" : "bg-primary text-white hover:bg-primary/90"
         )}
         aria-label="Chat with beauty assistant"
       >
@@ -351,7 +351,7 @@ const Chatbot = () => {
       {/* Chat Window */}
       <div
         className={cn(
-          "fixed right-6 bottom-24 z-50 w-80 sm:w-96 rounded-xl shadow-2xl overflow-hidden transition-all duration-500 ease-in-out transform origin-bottom-right",
+          "fixed right-6 bottom-24 z-50 w-80 sm:w-96 rounded-xl shadow-2xl overflow-hidden transition-all duration-500 ease-in-out transform origin-bottom-right bg-white",
           isOpen
             ? "scale-100 opacity-100"
             : "scale-90 opacity-0 pointer-events-none"
@@ -359,7 +359,7 @@ const Chatbot = () => {
       >
         <div className="flex flex-col h-[30rem] bg-white border border-gray-200 rounded-xl overflow-hidden">
           {/* Chat Header */}
-          <div className="p-4 bg-primary text-white flex items-center justify-between">
+          <div className="p-4 bg-primary text-primary-foreground flex items-center justify-between">
             <div className="flex items-center">
               <Sparkles className="h-5 w-5 mr-2" />
               <div>
@@ -404,8 +404,8 @@ const Chatbot = () => {
               >
                 <div
                   className={cn("rounded-xl p-3 relative animate-fade-in", {
-                    "bg-primary text-white": message.isUser,
-                    "bg-white border border-gray-200 shadow-sm": !message.isUser,
+                    "bg-primary text-primary-foreground": message.isUser,
+                    "bg-white border border-gray-200 shadow-sm text-foreground": !message.isUser,
                   })}
                 >
                   <div className="flex mb-1 items-center">
@@ -413,7 +413,7 @@ const Chatbot = () => {
                       <Bot className="h-4 w-4 mr-1 text-primary" />
                     )}
                     {message.isUser && (
-                      <User className="h-4 w-4 mr-1 text-white" />
+                      <User className="h-4 w-4 mr-1 text-primary-foreground" />
                     )}
                     <span className="text-xs">
                       {message.isUser ? "You" : "Beauty Assistant"} •{" "}
@@ -480,7 +480,7 @@ const Chatbot = () => {
                     className={cn(
                       "whitespace-nowrap px-3 py-1 mr-2 text-xs rounded-full transition-colors",
                       activeCategory === category.name
-                        ? "bg-primary text-white"
+                        ? "bg-primary text-primary-foreground"
                         : "bg-gray-100 text-gray-700 hover:bg-gray-200"
                     )}
                   >
@@ -534,7 +534,7 @@ const Chatbot = () => {
                 onChange={(e) => setInputValue(e.target.value)}
                 onKeyDown={handleKeyPress}
                 placeholder="Type your question..."
-                className="flex-1 bg-transparent py-2 px-2 outline-none text-sm"
+                className="flex-1 bg-transparent py-2 px-2 outline-none text-sm text-foreground"
                 ref={inputRef}
               />
               <button

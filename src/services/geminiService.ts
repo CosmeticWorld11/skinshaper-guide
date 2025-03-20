@@ -17,7 +17,7 @@ type GeminiResponse = {
 };
 
 export class GeminiService {
-  private apiKey: string | null = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
+  private apiKey: string | null = null;
   private static instance: GeminiService | null = null;
   
   // Singleton pattern
@@ -73,9 +73,9 @@ Keep your answer concise (100 words maximum) and conversational.`
         }
       ];
 
-      // Fixed API endpoint - Gemini 1.0 Pro model
+      // Updated API endpoint for Gemini 1.0 Pro model
       const response = await fetch(
-        "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=" + apiKey,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-1.0-pro:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: {

@@ -2,7 +2,6 @@
 import React, { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
 import { 
   Dialog, 
   DialogContent, 
@@ -48,13 +47,13 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="sm:max-w-md bg-white text-foreground">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className="flex items-center gap-2 text-foreground">
             <Key className="h-5 w-5" />
             Gemini API Key Setup
           </DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="text-muted-foreground">
             Enter your Gemini API key to enable AI-powered responses in the chatbot.
           </DialogDescription>
         </DialogHeader>
@@ -66,7 +65,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
               value={apiKey}
               onChange={(e) => setApiKey(e.target.value)}
               placeholder="Enter your Gemini API key"
-              className="font-mono"
+              className="font-mono text-foreground bg-background"
             />
           </div>
           
