@@ -20,6 +20,11 @@ export class GeminiService {
   private apiKey: string | null = null;
   private static instance: GeminiService | null = null;
   
+  constructor() {
+    // Initialize by loading API key from localStorage
+    this.apiKey = localStorage.getItem("gemini_api_key");
+  }
+  
   // Singleton pattern
   static getInstance(): GeminiService {
     if (!this.instance) {
@@ -29,15 +34,22 @@ export class GeminiService {
   }
 
   setApiKey(key: string): void {
-    this.apiKey = key;
+    if (!key || key.trim() === "") {
+      console.error("Attempted to set empty API key");
+      return;
+    }
+    
+    this.apiKey = key.trim();
     // Store API key in local storage for persistence
-    localStorage.setItem("gemini_api_key", key);
+    localStorage.setItem("gemini_api_key", this.apiKey);
+    console.log("API key set and saved to localStorage");
   }
 
   getApiKey(): string | null {
     // Try to get API key from instance or local storage
     if (!this.apiKey) {
       this.apiKey = localStorage.getItem("gemini_api_key");
+      console.log("Retrieved API key from localStorage:", !!this.apiKey);
     }
     return this.apiKey;
   }
@@ -45,16 +57,19 @@ export class GeminiService {
   clearApiKey(): void {
     this.apiKey = null;
     localStorage.removeItem("gemini_api_key");
+    console.log("API key cleared from service and localStorage");
   }
 
   async generateResponse(prompt: string, context: string = ""): Promise<string> {
     const apiKey = this.getApiKey();
     
     if (!apiKey) {
+      console.log("No API key found, requesting user to provide one");
       return "Please provide your Gemini API key to enable AI-powered responses.";
     }
 
     try {
+      console.log("Generating response with Gemini API");
       // Create system context and user message
       const messages: GeminiMessage[] = [
         {
@@ -100,6 +115,7 @@ Keep your answer concise (100 words maximum) and conversational.`
         if (response.status === 400) {
           return "I couldn't process that request. Please try rephrasing your question.";
         } else if (response.status === 401) {
+          console.error("Authentication error - clearing API key");
           this.clearApiKey();
           return "There's an issue with the API key. Please provide a valid Gemini API key.";
         } else {
@@ -110,8 +126,10 @@ Keep your answer concise (100 words maximum) and conversational.`
       const data = await response.json() as GeminiResponse;
       
       if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
+        console.log("Successfully generated AI response");
         return data.candidates[0].content.parts[0].text;
       } else {
+        console.error("Empty or invalid response from Gemini API");
         return "I wasn't able to generate a response. Please try asking a different question.";
       }
     } catch (error) {

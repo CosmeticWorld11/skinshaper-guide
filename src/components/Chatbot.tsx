@@ -117,7 +117,7 @@ const Chatbot = () => {
   const [activeCategory, setActiveCategory] = useState<string>(promptCategories[0].name);
   const [hasInteracted, setHasInteracted] = useState(false);
   const [apiKeyDialogOpen, setApiKeyDialogOpen] = useState(false);
-  const [hasApiKey, setHasApiKey] = useState(!!geminiService.getApiKey());
+  const [hasApiKey, setHasApiKey] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -125,6 +125,13 @@ const Chatbot = () => {
   const scrollToBottom = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
+
+  // Check for API key on component mount
+  useEffect(() => {
+    const key = geminiService.getApiKey();
+    setHasApiKey(!!key);
+    console.log("Chatbot initialized, API key present:", !!key);
+  }, []);
 
   // Save messages to localStorage whenever they change
   useEffect(() => {
@@ -149,7 +156,7 @@ const Chatbot = () => {
     }
 
     // Check API key and show notice if missing
-    if (isOpen && !geminiService.getApiKey() && messages.length === 1) {
+    if (isOpen && !hasApiKey && messages.length <= 2) {
       const apiKeyMessage: Message = {
         id: Date.now().toString(),
         content: "To enable AI-powered responses, please set up your Gemini API key. Click the settings icon in the chat header.",
@@ -187,12 +194,15 @@ const Chatbot = () => {
 
       return () => clearTimeout(inactivityTimer);
     }
-  }, [isOpen, hasInteracted, messages.length]);
+  }, [isOpen, hasInteracted, messages.length, hasApiKey]);
 
   const handleApiKeySave = () => {
-    setHasApiKey(!!geminiService.getApiKey());
+    const key = geminiService.getApiKey();
+    setHasApiKey(!!key);
+    console.log("API key saved and state updated:", !!key);
+    
     // Add a confirmation message in the chat
-    if (geminiService.getApiKey()) {
+    if (key) {
       const apiKeySetMessage: Message = {
         id: Date.now().toString(),
         content: "Gemini AI is now connected! Feel free to ask me anything about skincare, beauty, or fashion.",
@@ -249,6 +259,24 @@ const Chatbot = () => {
     setIsTyping(true);
 
     try {
+      // Check if we have an API key
+      const hasKey = !!geminiService.getApiKey();
+      
+      if (!hasKey) {
+        // Prompt user to set up API key
+        const noKeyMessage: Message = {
+          id: (Date.now() + 1).toString(),
+          content: "Please set up your Gemini API key to enable AI-powered responses. Click the settings icon in the chat header.",
+          isUser: false,
+          timestamp: new Date(),
+        };
+        
+        setMessages((prev) => [...prev, noKeyMessage]);
+        setHasApiKey(false);
+        setIsTyping(false);
+        return;
+      }
+      
       // Get website context from previous messages
       const context = messages
         .slice(0, 5)
@@ -259,11 +287,18 @@ const Chatbot = () => {
       const pageContext = `User is currently on page: ${location.pathname}`;
       const fullContext = `${context}\n${pageContext}`;
       
+      console.log("Sending request to Gemini API");
       // Get response from Gemini API
       const aiResponse = await geminiService.generateResponse(
         newUserMessage.content,
         fullContext
       );
+      
+      // Check if the response indicates an API key issue
+      if (aiResponse.includes("Please provide your Gemini API key")) {
+        setHasApiKey(false);
+        console.log("API key issue detected in response");
+      }
       
       const newBotMessage: Message = {
         id: (Date.now() + 1).toString(),
@@ -365,7 +400,7 @@ const Chatbot = () => {
               <div>
                 <h3 className="font-medium">Beauty Assistant</h3>
                 <p className="text-xs opacity-80">
-                  {hasApiKey ? "AI Powered by Gemini" : "Online"}
+                  {hasApiKey ? "AI Powered by Gemini" : "API Key Required"}
                 </p>
               </div>
             </div>

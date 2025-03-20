@@ -30,6 +30,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
       const savedKey = geminiService.getApiKey();
       if (savedKey) {
         setApiKey(savedKey);
+        console.log("Loaded existing API key into dialog");
       }
     }
   }, [isOpen]);
@@ -41,6 +42,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
     }
     
     setIsLoading(true);
+    console.log("Testing API key before saving");
     
     try {
       // Test the API key with a simple request before saving
@@ -74,6 +76,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
       }
       
       // If we reached here, the key is valid
+      console.log("API key verified successfully, saving");
       geminiService.setApiKey(apiKey.trim());
       toast.success("API key verified and saved successfully");
       onSave();
