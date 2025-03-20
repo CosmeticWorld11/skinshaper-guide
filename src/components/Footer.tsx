@@ -14,7 +14,7 @@ const Footer = () => {
             <Link to="/" className="inline-block mb-6">
               <h2 className="text-2xl font-serif font-semibold tracking-tight">
                 <span className="bg-clip-text text-transparent bg-gradient-to-r from-skin-600 to-blush-600">
-                  SkinShaper
+                  ECO Skin
                 </span>
               </h2>
             </Link>
@@ -166,7 +166,7 @@ const Footer = () => {
         <div className="mt-16 pt-8 border-t border-skin-200">
           <div className="flex flex-col md:flex-row justify-between items-center">
             <p className="text-muted-foreground text-sm">
-              © {new Date().getFullYear()} SkinShaper. All rights reserved.
+              © {new Date().getFullYear()} ECO Skin. All rights reserved.
             </p>
             <div className="flex space-x-6 mt-4 md:mt-0">
               <a

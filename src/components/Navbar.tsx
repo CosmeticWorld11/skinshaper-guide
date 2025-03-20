@@ -39,7 +39,7 @@ const Navbar = () => {
               className="text-2xl font-serif font-semibold tracking-tight transition-colors"
             >
               <span className="bg-clip-text text-transparent bg-gradient-to-r from-skin-600 to-blush-600">
-                SkinShaper
+                ECO Skin
               </span>
             </Link>
           </div>
