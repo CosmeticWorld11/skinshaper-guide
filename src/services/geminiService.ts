@@ -22,7 +22,13 @@ export class GeminiService {
   
   constructor() {
     // Initialize by loading API key from localStorage
-    this.apiKey = localStorage.getItem("gemini_api_key");
+    const savedKey = localStorage.getItem("gemini_api_key");
+    if (savedKey) {
+      this.apiKey = savedKey;
+      console.log("Loaded API key from localStorage during initialization");
+    } else {
+      console.log("No API key found in localStorage during initialization");
+    }
   }
   
   // Singleton pattern
@@ -42,14 +48,19 @@ export class GeminiService {
     this.apiKey = key.trim();
     // Store API key in local storage for persistence
     localStorage.setItem("gemini_api_key", this.apiKey);
-    console.log("API key set and saved to localStorage");
+    console.log("API key set and saved to localStorage:", this.apiKey.substring(0, 5) + '...');
+    toast.success("API key saved successfully");
   }
 
   getApiKey(): string | null {
-    // Try to get API key from instance or local storage
     if (!this.apiKey) {
-      this.apiKey = localStorage.getItem("gemini_api_key");
-      console.log("Retrieved API key from localStorage:", !!this.apiKey);
+      const savedKey = localStorage.getItem("gemini_api_key");
+      if (savedKey) {
+        this.apiKey = savedKey;
+        console.log("Retrieved API key from localStorage");
+      } else {
+        console.log("No API key found in localStorage or service instance");
+      }
     }
     return this.apiKey;
   }
@@ -61,6 +72,7 @@ export class GeminiService {
   }
 
   async generateResponse(prompt: string, context: string = ""): Promise<string> {
+    console.log("generateResponse called with prompt:", prompt.substring(0, 20) + '...');
     const apiKey = this.getApiKey();
     
     if (!apiKey) {
@@ -69,7 +81,7 @@ export class GeminiService {
     }
 
     try {
-      console.log("Generating response with Gemini API");
+      console.log("Generating response with Gemini API using key:", apiKey.substring(0, 5) + '...');
       // Create system context and user message
       const messages: GeminiMessage[] = [
         {
@@ -139,5 +151,13 @@ Keep your answer concise (100 words maximum) and conversational.`
   }
 }
 
-// Export a singleton instance
+// Initialize with default API key if available
 export const geminiService = GeminiService.getInstance();
+
+// For testing purposes - set a hardcoded API key if one is provided
+// NOTE: This is a development-only feature and should be removed in production
+const HARDCODED_KEY = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
+if (HARDCODED_KEY && !geminiService.getApiKey()) {
+  console.log("Setting hardcoded API key for development");
+  geminiService.setApiKey(HARDCODED_KEY);
+}

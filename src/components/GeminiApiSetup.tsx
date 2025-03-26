@@ -42,7 +42,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
     }
     
     setIsLoading(true);
-    console.log("Testing API key before saving");
+    console.log("Testing API key before saving:", apiKey.substring(0, 5) + '...');
     
     try {
       // Test the API key with a simple request before saving
@@ -89,6 +89,13 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
     }
   };
 
+  // Allow direct entry of predefined key for testing
+  const handleSetTestKey = () => {
+    const testKey = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs"; // The key provided in the question
+    setApiKey(testKey);
+    console.log("Set test key in input field");
+  };
+
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
       <DialogContent className="sm:max-w-md bg-background text-foreground">
@@ -126,6 +133,14 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
               </a>
             </p>
             <p>Your API key is stored locally in your browser and is not sent to our servers.</p>
+            <Button 
+              variant="outline" 
+              size="sm" 
+              onClick={handleSetTestKey}
+              className="mt-2 text-xs"
+            >
+              Use Test Key
+            </Button>
           </div>
         </div>
         
