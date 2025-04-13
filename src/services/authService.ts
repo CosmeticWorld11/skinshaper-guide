@@ -1,7 +1,6 @@
 
 import { toast } from "sonner";
 import { mongoDbService } from "./mongoDbService";
-import * as bcryptCompat from 'bcryptjs';
 
 // JWT secret key (in a real app, this would be an environment variable)
 const JWT_SECRET = "eco-skin-secure-jwt-secret-key";
@@ -38,6 +37,34 @@ const jwtCompat = {
     } catch (error) {
       throw new Error('Invalid token');
     }
+  }
+};
+
+// Simple password hashing for browser (not as secure as bcrypt but works for demo)
+const bcryptCompat = {
+  async genSalt(rounds = 10): Promise<string> {
+    const charset = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+    let salt = '';
+    for (let i = 0; i < 16; i++) {
+      salt += charset.charAt(Math.floor(Math.random() * charset.length));
+    }
+    return `$2b$${rounds}$${salt}`;
+  },
+  
+  async hash(password: string, salt: string): Promise<string> {
+    // Simple hashing function (not secure as real bcrypt, just for demo)
+    const encoder = new TextEncoder();
+    const data = encoder.encode(salt + password);
+    const hashBuffer = await crypto.subtle.digest('SHA-256', data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hashHex = hashArray.map(b => b.toString(16).padStart(2, '0')).join('');
+    return `${salt}.${hashHex}`;
+  },
+  
+  async compare(password: string, hash: string): Promise<boolean> {
+    const [salt, _] = hash.split('.');
+    const newHash = await this.hash(password, salt);
+    return newHash === hash;
   }
 };
 
