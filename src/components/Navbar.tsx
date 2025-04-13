@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { Menu, X, User, Search, Book, Leaf, Calendar, CalendarPlus } from "lucide-react";
+import { Menu, X, User, Search, Calendar, CalendarPlus, Shirt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 const Navbar = () => {
@@ -45,7 +45,7 @@ const Navbar = () => {
           </div>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
+          <nav className="hidden md:flex items-center space-x-6">
             <Link
               to="/"
               className="text-sm font-medium hover:text-primary transition-colors"
@@ -65,6 +65,12 @@ const Navbar = () => {
               Recommendations
             </Link>
             <Link
+              to="/fashion"
+              className="text-sm font-medium hover:text-primary transition-colors"
+            >
+              Fashion Analysis
+            </Link>
+            <Link
               to="/blog"
               className="text-sm font-medium hover:text-primary transition-colors"
             >
@@ -74,19 +80,13 @@ const Navbar = () => {
               to="/eco-beauty-guide"
               className="text-sm font-medium hover:text-primary transition-colors"
             >
-              Eco Beauty Guide
+              Eco Guide
             </Link>
             <Link
               to="/skincare-planner"
               className="text-sm font-medium hover:text-primary transition-colors"
             >
-              Skincare Planner
-            </Link>
-            <Link
-              to="/custom-planner"
-              className="text-sm font-medium hover:text-primary transition-colors"
-            >
-              Custom Planner
+              Planner
             </Link>
             <Link
               to="/about"
@@ -112,7 +112,7 @@ const Navbar = () => {
             </button>
             <Button
               size="sm"
-              className="bg-primary hover:bg-primary/90 rounded-full px-5"
+              className="bg-skin-600 hover:bg-skin-700 text-white rounded-full px-5"
             >
               Get Started
             </Button>
@@ -161,6 +161,13 @@ const Navbar = () => {
               Recommendations
             </Link>
             <Link
+              to="/fashion"
+              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
+              onClick={() => setIsMobileMenuOpen(false)}
+            >
+              Fashion Analysis
+            </Link>
+            <Link
               to="/blog"
               className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
               onClick={() => setIsMobileMenuOpen(false)}
@@ -172,21 +179,14 @@ const Navbar = () => {
               className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Eco Beauty Guide
+              Eco Guide
             </Link>
             <Link
               to="/skincare-planner"
               className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
               onClick={() => setIsMobileMenuOpen(false)}
             >
-              Skincare Planner
-            </Link>
-            <Link
-              to="/custom-planner"
-              className="block px-3 py-2 rounded-md text-base font-medium hover:bg-secondary"
-              onClick={() => setIsMobileMenuOpen(false)}
-            >
-              Custom Planner
+              Planner
             </Link>
             <Link
               to="/about"
@@ -196,7 +196,7 @@ const Navbar = () => {
               About
             </Link>
             <Button
-              className="w-full mt-4 bg-primary hover:bg-primary/90"
+              className="w-full mt-4 bg-skin-600 hover:bg-skin-700 text-white"
               onClick={() => setIsMobileMenuOpen(false)}
             >
               Get Started

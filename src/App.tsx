@@ -12,6 +12,7 @@ import EcoBeautyGuide from "./pages/EcoBeautyGuide";
 import RecommendationsPage from "./pages/RecommendationsPage";
 import SkincareRoutinePlanner from "./pages/SkincareRoutinePlanner";
 import CustomRoutinePlanner from "./pages/CustomRoutinePlanner";
+import FashionAnalysis from "./pages/FashionAnalysis";
 
 const queryClient = new QueryClient();
 
@@ -28,9 +29,9 @@ const App = () => (
           <Route path="/recommendations" element={<RecommendationsPage />} />
           <Route path="/skincare-planner" element={<SkincareRoutinePlanner />} />
           <Route path="/custom-planner" element={<CustomRoutinePlanner />} />
+          <Route path="/fashion" element={<FashionAnalysis />} />
           {/* We'll add these routes later when we implement these pages */}
           <Route path="/analysis" element={<Index />} />
-          <Route path="/fashion" element={<Index />} />
           <Route path="/about" element={<Index />} />
           {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
           <Route path="*" element={<NotFound />} />
