@@ -100,9 +100,9 @@ Keep your answer concise (100 words maximum) and conversational.`
         }
       ];
 
-      // Correct API endpoint for Gemini 1.0 Pro model
+      // Updated API endpoint for Gemini 1.0 Pro (fixing the 404 error)
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
         {
           method: "POST",
           headers: {

@@ -1,12 +1,12 @@
 
 import React from "react";
 import { Brush, Shirt, TrendingUp, ShoppingBag } from "lucide-react";
-import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Progress } from "@/components/ui/progress";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
+import FashionAnalysisTool from "@/components/FashionAnalysisTool";
 
 const FashionAnalysis = () => {
   return (
@@ -152,6 +152,11 @@ const FashionAnalysis = () => {
           </div>
         </div>
       </div>
+
+      {/* ADDED: Fashion Analysis Tool */}
+      <section className="py-16 bg-white">
+        <FashionAnalysisTool />
+      </section>
       
       {/* Fashion & Style Updates */}
       <section className="py-16 bg-skin-50/50">
