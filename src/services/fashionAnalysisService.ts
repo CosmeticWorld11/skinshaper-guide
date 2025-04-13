@@ -2,7 +2,6 @@
 import { toast } from "sonner";
 import { mongoDbService } from "./mongoDbService";
 import { pipeline, env } from '@huggingface/transformers';
-import { ObjectId } from "mongodb";
 
 // Configure transformers.js to always download models
 env.allowLocalModels = false;
@@ -36,6 +35,7 @@ function resizeImageIfNeeded(canvas: HTMLCanvasElement, ctx: CanvasRenderingCont
 }
 
 export interface AnalysisResult {
+  _id?: string;
   colorAnalysis: {
     dominant: string[];
     complementary: string[];
@@ -151,10 +151,11 @@ export class FashionAnalysisService {
         createdAt: new Date()
       };
       
-      // Save the analysis result to MongoDB
+      // Save the analysis result to local storage
       try {
         const analysisCollection = await mongoDbService.getCollection("fashionAnalysis");
-        await analysisCollection.insertOne(result);
+        const savedResult = await analysisCollection.insertOne(result);
+        result._id = savedResult.insertedId;
         console.log("Analysis saved to database");
       } catch (dbError) {
         console.error("Error saving analysis to database:", dbError);
@@ -183,7 +184,7 @@ export class FashionAnalysisService {
     try {
       const analysisCollection = await mongoDbService.getCollection("fashionAnalysis");
       const analyses = await analysisCollection.find({ userId }).sort({ createdAt: -1 }).toArray();
-      return analyses as unknown as AnalysisResult[];
+      return analyses as AnalysisResult[];
     } catch (error) {
       console.error("Error fetching user analyses:", error);
       return [];
@@ -193,8 +194,8 @@ export class FashionAnalysisService {
   async getAnalysisById(analysisId: string): Promise<AnalysisResult | null> {
     try {
       const analysisCollection = await mongoDbService.getCollection("fashionAnalysis");
-      const analysis = await analysisCollection.findOne({ _id: mongoDbService.toObjectId(analysisId) });
-      return analysis as unknown as AnalysisResult;
+      const analysis = await analysisCollection.findOne({ _id: analysisId });
+      return analysis as AnalysisResult;
     } catch (error) {
       console.error("Error fetching analysis by ID:", error);
       return null;

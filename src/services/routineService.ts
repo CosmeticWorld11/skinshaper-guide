@@ -1,7 +1,6 @@
 
 import { mongoDbService } from "./mongoDbService";
 import { toast } from "sonner";
-import { ObjectId } from "mongodb";
 
 export interface RoutineItem {
   id?: string;
@@ -61,7 +60,7 @@ export class RoutineService {
         };
       } else {
         // Create new routine
-        const newRoutine: Routine = {
+        const newRoutine = {
           ...routine,
           createdAt: now,
           updatedAt: now

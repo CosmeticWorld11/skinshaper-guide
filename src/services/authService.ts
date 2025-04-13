@@ -1,11 +1,45 @@
 
 import { toast } from "sonner";
 import { mongoDbService } from "./mongoDbService";
-import bcrypt from "bcryptjs";
-import jwt from "jsonwebtoken";
+import * as bcryptCompat from 'bcryptjs/dist/bcrypt';
 
 // JWT secret key (in a real app, this would be an environment variable)
 const JWT_SECRET = "eco-skin-secure-jwt-secret-key";
+
+// Simple JWT implementation for browser
+const jwtCompat = {
+  sign: (payload: any, secret: string, options?: { expiresIn: string }): string => {
+    const header = { alg: 'HS256', typ: 'JWT' };
+    const now = Math.floor(Date.now() / 1000);
+    const exp = options?.expiresIn ? now + (parseInt(options.expiresIn) * 86400) : now + 604800; // Default 7 days
+    const tokenPayload = { ...payload, iat: now, exp };
+    
+    const stringifiedHeader = btoa(JSON.stringify(header));
+    const stringifiedPayload = btoa(JSON.stringify(tokenPayload));
+    
+    const signature = btoa(stringifiedHeader + stringifiedPayload + secret);
+    
+    return `${stringifiedHeader}.${stringifiedPayload}.${signature}`;
+  },
+  
+  verify: (token: string, secret: string): any => {
+    try {
+      const [headerStr, payloadStr] = token.split('.');
+      if (!headerStr || !payloadStr) throw new Error('Invalid token format');
+      
+      const payload = JSON.parse(atob(payloadStr));
+      const now = Math.floor(Date.now() / 1000);
+      
+      if (payload.exp && payload.exp < now) {
+        throw new Error('Token expired');
+      }
+      
+      return payload;
+    } catch (error) {
+      throw new Error('Invalid token');
+    }
+  }
+};
 
 export interface User {
   _id?: string;
@@ -43,8 +77,8 @@ export class AuthService {
       }
       
       // Hash password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
+      const salt = await bcryptCompat.genSalt(10);
+      const hashedPassword = await bcryptCompat.hash(password, salt);
       
       // Create new user
       const newUser: User = {
@@ -57,7 +91,7 @@ export class AuthService {
       const result = await usersCollection.insertOne(newUser);
       
       // Generate token
-      const token = jwt.sign(
+      const token = jwtCompat.sign(
         { id: result.insertedId.toString(), email: newUser.email },
         JWT_SECRET,
         { expiresIn: "7d" }
@@ -94,14 +128,14 @@ export class AuthService {
       }
       
       // Check password
-      const isMatch = await bcrypt.compare(password, user.password);
+      const isMatch = await bcryptCompat.compare(password, user.password);
       
       if (!isMatch) {
         return { success: false, message: "Invalid credentials" };
       }
       
       // Generate token
-      const token = jwt.sign(
+      const token = jwtCompat.sign(
         { id: user._id.toString(), email: user.email },
         JWT_SECRET,
         { expiresIn: "7d" }
@@ -128,7 +162,7 @@ export class AuthService {
   
   verifyToken(token: string): { valid: boolean; userId?: string } {
     try {
-      const decoded = jwt.verify(token, JWT_SECRET) as { id: string; email: string };
+      const decoded = jwtCompat.verify(token, JWT_SECRET) as { id: string; email: string };
       return { valid: true, userId: decoded.id };
     } catch (error) {
       return { valid: false };
@@ -163,7 +197,7 @@ export class AuthService {
     
     try {
       const usersCollection = await mongoDbService.getCollection("users");
-      const user = await usersCollection.findOne({ _id: mongoDbService.toObjectId(userId) });
+      const user = await usersCollection.findOne({ _id: userId });
       
       if (!user) {
         this.clearStoredToken();
