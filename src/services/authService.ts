@@ -1,7 +1,7 @@
 
 import { toast } from "sonner";
 import { mongoDbService } from "./mongoDbService";
-import * as bcryptCompat from 'bcryptjs/dist/bcrypt';
+import * as bcryptCompat from 'bcryptjs';
 
 // JWT secret key (in a real app, this would be an environment variable)
 const JWT_SECRET = "eco-skin-secure-jwt-secret-key";
