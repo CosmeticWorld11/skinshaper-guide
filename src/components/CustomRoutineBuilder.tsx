@@ -1,28 +1,46 @@
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Calendar, Clock, Plus, Save, Trash2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-
-type RoutineItem = {
-  id: string;
-  day: string;
-  time: string;
-  treatment: string;
-  notes: string;
-  completed: boolean;
-};
+import { useAuth } from "@/contexts/AuthContext";
+import { routineService, RoutineItem } from "@/services/routineService";
+import { toast } from "sonner";
 
 const weekdays = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
 
 const CustomRoutineBuilder = () => {
+  const { user } = useAuth();
   const [routineItems, setRoutineItems] = useState<RoutineItem[]>([]);
   const [currentDay, setCurrentDay] = useState("Monday");
   const [currentTime, setCurrentTime] = useState("");
   const [currentTreatment, setCurrentTreatment] = useState("");
   const [currentNotes, setCurrentNotes] = useState("");
   const [saved, setSaved] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadRoutine = async () => {
+      if (!user?._id) return;
+      
+      try {
+        setIsLoading(true);
+        const routine = await routineService.getUserRoutine(user._id);
+        
+        if (routine) {
+          setRoutineItems(routine.items);
+        }
+      } catch (error) {
+        console.error("Error loading routine:", error);
+        toast.error("Failed to load your routine");
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadRoutine();
+  }, [user]);
 
   const addRoutineItem = () => {
     if (!currentTreatment || !currentTime) return;
@@ -56,15 +74,37 @@ const CustomRoutineBuilder = () => {
     setSaved(false);
   };
 
-  const saveRoutine = () => {
-    // In a real app, this would save to a database or localStorage
-    localStorage.setItem("customRoutine", JSON.stringify(routineItems));
-    setSaved(true);
+  const saveRoutine = async () => {
+    if (!user?._id) {
+      toast.error("You must be logged in to save a routine");
+      return;
+    }
     
-    // Show a toast message
-    // This is just a placeholder - in an actual implementation you'd use your toast component
-    setTimeout(() => setSaved(false), 3000);
+    try {
+      await routineService.saveRoutine({
+        userId: user._id,
+        items: routineItems,
+        name: "My Custom Routine"
+      });
+      
+      setSaved(true);
+      toast.success("Routine saved successfully");
+      
+      // Reset saved state after 3 seconds
+      setTimeout(() => setSaved(false), 3000);
+    } catch (error) {
+      console.error("Error saving routine:", error);
+      toast.error("Failed to save routine");
+    }
   };
+
+  if (isLoading) {
+    return (
+      <div className="bg-white rounded-xl p-6 shadow-sm min-h-[400px] flex items-center justify-center">
+        <div className="animate-spin rounded-full h-8 w-8 border-t-2 border-b-2 border-skin-600"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="bg-white rounded-xl p-6 shadow-sm">
@@ -146,7 +186,7 @@ const CustomRoutineBuilder = () => {
                           <input 
                             type="checkbox" 
                             checked={item.completed}
-                            onChange={() => toggleComplete(item.id)}
+                            onChange={() => toggleComplete(item.id!)}
                             className="h-4 w-4 rounded border-gray-300 text-primary focus:ring-primary"
                           />
                           <div>
@@ -166,7 +206,7 @@ const CustomRoutineBuilder = () => {
                         <Button 
                           variant="ghost" 
                           size="sm" 
-                          onClick={() => removeRoutineItem(item.id)}
+                          onClick={() => removeRoutineItem(item.id!)}
                           className="text-destructive hover:text-destructive/90 hover:bg-destructive/10"
                         >
                           <Trash2 className="h-4 w-4" />

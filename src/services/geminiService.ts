@@ -87,7 +87,7 @@ export class GeminiService {
         {
           role: "user",
           parts: [{ 
-            text: `You are a helpful beauty assistant AI for ECO Skin.
+            text: `You are a helpful beauty assistant AI for ECO-Skin.
             
 Context about our website: ${context || "We offer eco-friendly beauty products, skincare routines, fashion tips, and personalized product recommendations."}
             
