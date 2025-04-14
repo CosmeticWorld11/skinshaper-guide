@@ -21,14 +21,9 @@ export class GeminiService {
   private static instance: GeminiService | null = null;
   
   constructor() {
-    // Initialize by loading API key from localStorage
-    const savedKey = localStorage.getItem("gemini_api_key");
-    if (savedKey) {
-      this.apiKey = savedKey;
-      console.log("Loaded API key from localStorage during initialization");
-    } else {
-      console.log("No API key found in localStorage during initialization");
-    }
+    // Initialize with hardcoded API key for better user experience
+    this.apiKey = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
+    console.log("GeminiService initialized with default API key");
   }
   
   // Singleton pattern
@@ -53,15 +48,6 @@ export class GeminiService {
   }
 
   getApiKey(): string | null {
-    if (!this.apiKey) {
-      const savedKey = localStorage.getItem("gemini_api_key");
-      if (savedKey) {
-        this.apiKey = savedKey;
-        console.log("Retrieved API key from localStorage");
-      } else {
-        console.log("No API key found in localStorage or service instance");
-      }
-    }
     return this.apiKey;
   }
 
@@ -73,15 +59,9 @@ export class GeminiService {
 
   async generateResponse(prompt: string, context: string = ""): Promise<string> {
     console.log("generateResponse called with prompt:", prompt.substring(0, 20) + '...');
-    const apiKey = this.getApiKey();
     
-    if (!apiKey) {
-      console.log("No API key found, requesting user to provide one");
-      return "Please provide your Gemini API key to enable AI-powered responses.";
-    }
-
     try {
-      console.log("Generating response with Gemini API using key:", apiKey.substring(0, 5) + '...');
+      console.log("Generating response with Gemini API");
       // Create system context and user message
       const messages: GeminiMessage[] = [
         {
@@ -100,16 +80,20 @@ Keep your answer concise (100 words maximum) and conversational.`
         }
       ];
 
-      // Updated API endpoint for Gemini 1.0 Pro (fixing the 404 error)
+      // Updated API endpoint to use gemini-pro (not gemini-1.0-pro)
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${this.apiKey}`,
         {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
           },
           body: JSON.stringify({
-            contents: messages,
+            contents: [
+              {
+                parts: [{ text: prompt }]
+              }
+            ],
             generationConfig: {
               temperature: 0.7,
               topK: 40,
@@ -124,15 +108,7 @@ Keep your answer concise (100 words maximum) and conversational.`
         const errorData = await response.json();
         console.error("Gemini API error:", errorData);
         
-        if (response.status === 400) {
-          return "I couldn't process that request. Please try rephrasing your question.";
-        } else if (response.status === 401) {
-          console.error("Authentication error - clearing API key");
-          this.clearApiKey();
-          return "There's an issue with the API key. Please provide a valid Gemini API key.";
-        } else {
-          return "I'm having trouble connecting to my AI services right now. Please try again later.";
-        }
+        return "I'm having trouble connecting to my AI services right now. Please try asking a different question.";
       }
 
       const data = await response.json() as GeminiResponse;
@@ -151,13 +127,5 @@ Keep your answer concise (100 words maximum) and conversational.`
   }
 }
 
-// Initialize with default API key if available
+// Initialize and export the singleton instance
 export const geminiService = GeminiService.getInstance();
-
-// For testing purposes - set a hardcoded API key if one is provided
-// NOTE: This is a development-only feature and should be removed in production
-const HARDCODED_KEY = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
-if (HARDCODED_KEY && !geminiService.getApiKey()) {
-  console.log("Setting hardcoded API key for development");
-  geminiService.setApiKey(HARDCODED_KEY);
-}

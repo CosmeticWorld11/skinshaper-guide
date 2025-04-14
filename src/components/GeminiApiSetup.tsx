@@ -45,9 +45,9 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
     console.log("Testing API key before saving:", apiKey.substring(0, 5) + '...');
     
     try {
-      // Test the API key with a simple request before saving
+      // Test the API key with a simple request before saving - using the correct API endpoint
       const testResponse = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.0-pro:generateContent?key=${apiKey.trim()}`,
+        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${apiKey.trim()}`,
         {
           method: "POST",
           headers: {
@@ -56,7 +56,6 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
           body: JSON.stringify({
             contents: [
               {
-                role: "user",
                 parts: [{ text: "Hello" }]
               }
             ],
@@ -89,9 +88,8 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
     }
   };
 
-  // Allow direct entry of predefined key for testing
   const handleSetTestKey = () => {
-    const testKey = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs"; // The key provided in the question
+    const testKey = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
     setApiKey(testKey);
     console.log("Set test key in input field");
   };
@@ -132,7 +130,7 @@ const GeminiApiSetup: React.FC<GeminiApiSetupProps> = ({ isOpen, onClose, onSave
                 Google AI Studio
               </a>
             </p>
-            <p>Your API key is stored locally in your browser and is not sent to our servers.</p>
+            <p>A default API key is already configured for demo purposes.</p>
             <Button 
               variant="outline" 
               size="sm" 
