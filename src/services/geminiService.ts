@@ -21,9 +21,16 @@ export class GeminiService {
   private static instance: GeminiService | null = null;
   
   constructor() {
-    // Initialize with hardcoded API key for better user experience
+    // Initialize with API key for better user experience
     this.apiKey = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
     console.log("GeminiService initialized with default API key");
+    
+    // Try to load from localStorage as fallback
+    const savedKey = localStorage.getItem("gemini_api_key");
+    if (savedKey && savedKey.trim() !== "") {
+      this.apiKey = savedKey;
+      console.log("Loaded API key from localStorage");
+    }
   }
   
   // Singleton pattern
@@ -60,14 +67,15 @@ export class GeminiService {
   async generateResponse(prompt: string, context: string = ""): Promise<string> {
     console.log("generateResponse called with prompt:", prompt.substring(0, 20) + '...');
     
+    if (!this.apiKey) {
+      console.error("No API key available");
+      return "Please set your Gemini API key in the settings to use the AI assistant.";
+    }
+    
     try {
       console.log("Generating response with Gemini API");
-      // Create system context and user message
-      const messages: GeminiMessage[] = [
-        {
-          role: "user",
-          parts: [{ 
-            text: `You are a helpful beauty assistant AI for ECO-Skin.
+      // Create prompt with context
+      const fullPrompt = `You are a helpful beauty assistant AI for ECO-Skin.
             
 Context about our website: ${context || "We offer eco-friendly beauty products, skincare routines, fashion tips, and personalized product recommendations."}
             
@@ -75,12 +83,9 @@ The user's question is: ${prompt}
             
 Please provide a helpful, accurate, and friendly response. Focus on skincare, beauty, eco-friendly products, or our website features as appropriate to the question.
 If the question is not related to beauty, skincare, fashion, or our website features, politely redirect the conversation.
-Keep your answer concise (100 words maximum) and conversational.`
-          }]
-        }
-      ];
+Keep your answer concise (100 words maximum) and conversational.`;
 
-      // Updated API endpoint to use gemini-pro (not gemini-1.0-pro)
+      // Call Gemini API with simplified request structure
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${this.apiKey}`,
         {
@@ -91,7 +96,7 @@ Keep your answer concise (100 words maximum) and conversational.`
           body: JSON.stringify({
             contents: [
               {
-                parts: [{ text: prompt }]
+                parts: [{ text: fullPrompt }]
               }
             ],
             generationConfig: {

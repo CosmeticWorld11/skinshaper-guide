@@ -55,12 +55,12 @@ const Hero = () => {
 
   return (
     <section 
-      className="relative min-h-screen pt-20 overflow-hidden bg-gradient-to-b from-skin-50 to-blush-50"
+      className="relative min-h-screen pt-20 overflow-hidden bg-gradient-to-b from-skin-100 to-blush-100"
       ref={heroRef}
     >
-      <div className="absolute inset-0 z-0 opacity-20">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gold-100 rounded-full filter blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-80 h-80 bg-blush-200 rounded-full filter blur-3xl"></div>
+      <div className="absolute inset-0 z-0 opacity-30">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gold-200 rounded-full filter blur-3xl"></div>
+        <div className="absolute bottom-20 right-10 w-80 h-80 bg-blush-300 rounded-full filter blur-3xl"></div>
       </div>
 
       <div className="container relative z-10 mx-auto px-4 sm:px-6 lg:px-8 h-full flex flex-col">
@@ -103,23 +103,23 @@ const Hero = () => {
 
           <div className="w-full md:w-1/2 flex justify-center items-center pt-10 md:pt-0 transition-all duration-1000 ease-out delay-300 opacity-0 translate-y-10 animate-fade-up">
             <div className="relative w-full max-w-lg aspect-square">
-              <div className="absolute inset-0 bg-gradient-to-br from-blush-200 to-skin-200 rounded-full blur-3xl opacity-30 animate-pulse"></div>
-              <div className="glass-card relative h-full rounded-3xl overflow-hidden p-4 backdrop-blur-xl">
+              <div className="absolute inset-0 bg-gradient-to-br from-blush-300 to-skin-300 rounded-full blur-3xl opacity-40 animate-pulse"></div>
+              <div className="glass-card relative h-full rounded-3xl overflow-hidden p-4 backdrop-blur-xl bg-white/20">
                 <div className="h-full w-full rounded-2xl overflow-hidden bg-gradient-to-br from-skin-100 to-blush-100 flex flex-col items-center justify-center p-8 text-center">
                   <img 
                     src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-1.2.1&auto=format&fit=crop&w=600&q=80" 
                     alt="Eco-friendly beauty" 
                     className="w-full h-full object-cover rounded-xl opacity-70 absolute inset-0"
                   />
-                  <div className="relative z-10 bg-white/80 backdrop-blur-sm p-6 rounded-xl">
-                    <div className="mb-6 p-4 rounded-full bg-white/70">
+                  <div className="relative z-10 bg-white/80 backdrop-blur-sm p-6 rounded-xl shadow-lg">
+                    <div className="mb-6 p-4 rounded-full bg-white/70 mx-auto w-20 h-20 flex items-center justify-center">
                       <Upload className="h-10 w-10 text-primary" />
                     </div>
                     <h3 className="text-xl font-semibold mb-2">Upload Your Photo</h3>
                     <p className="text-sm text-muted-foreground mb-6">
                       Drag and drop your photo here or click to browse files
                     </p>
-                    <Button className="rounded-full bg-white hover:bg-white/90 text-primary">
+                    <Button className="rounded-full bg-primary hover:bg-primary/90 text-white">
                       Choose File
                     </Button>
                   </div>
@@ -143,8 +143,15 @@ const Hero = () => {
             {trends.map((trend, index) => (
               <div 
                 key={index}
-                className="glass-card rounded-xl overflow-hidden transition-all duration-500 ease-out hover:shadow-lg opacity-0 translate-y-10"
-                style={{ animationDelay: `${index * 100 + 800}ms`, animationFillMode: 'forwards', animationName: 'fadeUp', animationDuration: '1s' }}
+                className="glass-card rounded-xl overflow-hidden transition-all duration-500 ease-out hover:shadow-lg bg-white/70 backdrop-blur-sm"
+                style={{ 
+                  animationDelay: `${index * 100 + 800}ms`, 
+                  animationFillMode: 'forwards', 
+                  animationName: 'fadeUp', 
+                  animationDuration: '1s',
+                  opacity: 0,
+                  transform: 'translateY(10px)'
+                }}
               >
                 <div className="h-48 overflow-hidden">
                   <img 
@@ -179,8 +186,15 @@ const Hero = () => {
             {['Advanced AI Analysis', 'Personalized Recommendations', 'Eco-Friendly Treatments', 'Expert Support'].map((feature, index) => (
               <div 
                 key={index}
-                className="glass-card rounded-xl p-4 transition-all duration-500 ease-out opacity-0 translate-y-10"
-                style={{ animationDelay: `${index * 100 + 1200}ms`, animationFillMode: 'forwards', animationName: 'fadeUp', animationDuration: '1s' }}
+                className="glass-card rounded-xl p-4 transition-all duration-500 ease-out bg-white/60 backdrop-blur-sm"
+                style={{ 
+                  animationDelay: `${index * 100 + 1200}ms`, 
+                  animationFillMode: 'forwards', 
+                  animationName: 'fadeUp', 
+                  animationDuration: '1s',
+                  opacity: 0,
+                  transform: 'translateY(10px)'
+                }}
               >
                 <div className="text-center">
                   <div className="inline-flex items-center justify-center w-10 h-10 mb-4 rounded-full bg-primary/10">
@@ -193,6 +207,25 @@ const Hero = () => {
           </div>
         </div>
       </div>
+      
+      <style jsx>{`
+        @keyframes fadeUp {
+          from {
+            opacity: 0;
+            transform: translateY(10px);
+          }
+          to {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+        .animate-fade-up {
+          animation: fadeUp 1s forwards;
+        }
+        .glass-card {
+          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+      `}</style>
     </section>
   );
 };
