@@ -1,4 +1,3 @@
-
 import { toast } from "@/hooks/use-toast";
 
 export interface NewsArticle {
@@ -22,7 +21,7 @@ export interface NewsResponse {
   nextPage: string;
 }
 
-const API_KEY = "pub_74637575462223d3c34ccbc1e0a226ef67409";
+const API_KEY = "pub_74637c04d6d0d570547ee7ecead27e73201d5";
 const BASE_URL = "https://newsdata.io/api/1/news";
 
 export const fetchNewsArticles = async (page?: string): Promise<NewsResponse> => {
