@@ -231,10 +231,12 @@ export class AuthService {
         return null;
       }
       
-      const { password, ...userWithoutPassword } = user;
+      // Ensure we return a proper User object without the password
       return {
-        ...userWithoutPassword,
-        _id: user._id.toString()
+        _id: user._id.toString(),
+        email: user.email,
+        name: user.name,
+        createdAt: user.createdAt
       };
     } catch (error) {
       console.error("Error getting current user:", error);

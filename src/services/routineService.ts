@@ -89,8 +89,12 @@ export class RoutineService {
       }
       
       return {
-        ...routine,
-        _id: routine._id.toString()
+        _id: routine._id.toString(),
+        userId: routine.userId,
+        items: routine.items,
+        name: routine.name,
+        createdAt: routine.createdAt,
+        updatedAt: routine.updatedAt
       };
     } catch (error) {
       console.error("Error fetching user routine:", error);
