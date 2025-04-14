@@ -208,24 +208,26 @@ const Hero = () => {
         </div>
       </div>
       
-      <style jsx>{`
-        @keyframes fadeUp {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
+      <style>
+        {`
+          @keyframes fadeUp {
+            from {
+              opacity: 0;
+              transform: translateY(10px);
+            }
+            to {
+              opacity: 1;
+              transform: translateY(0);
+            }
           }
-          to {
-            opacity: 1;
-            transform: translateY(0);
+          .animate-fade-up {
+            animation: fadeUp 1s forwards;
           }
-        }
-        .animate-fade-up {
-          animation: fadeUp 1s forwards;
-        }
-        .glass-card {
-          box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-        }
-      `}</style>
+          .glass-card {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+          }
+        `}
+      </style>
     </section>
   );
 };
