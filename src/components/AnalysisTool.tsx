@@ -1,8 +1,10 @@
-import React, { useState, useRef } from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, AlertCircle, Check, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
+import { toast } from "sonner";
 
 const AnalysisTool = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -17,6 +19,16 @@ const AnalysisTool = () => {
   const [showCamera, setShowCamera] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
+
+  // Cleanup camera stream when component unmounts
+  useEffect(() => {
+    return () => {
+      if (streamRef.current) {
+        streamRef.current.getTracks().forEach(track => track.stop());
+      }
+    };
+  }, []);
 
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -42,14 +54,26 @@ const AnalysisTool = () => {
   };
 
   const startCamera = async () => {
-    setShowCamera(true);
     try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      // Request camera permission
+      const stream = await navigator.mediaDevices.getUserMedia({ 
+        video: { facingMode: "user" },
+        audio: false
+      });
+      
+      // Store the stream reference for cleanup
+      streamRef.current = stream;
+      
+      // Set the video source
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
       }
+      
+      setShowCamera(true);
+      toast.success("Camera accessed successfully");
     } catch (err) {
       console.error("Error accessing camera:", err);
+      toast.error("Could not access camera. Please check permissions.");
     }
   };
 
@@ -68,6 +92,7 @@ const AnalysisTool = () => {
             setPreviewUrl(URL.createObjectURL(file));
             stopCamera();
             setAnalysisResults(null);
+            toast.success("Photo captured successfully");
           }
         }, "image/jpeg");
       }
@@ -75,13 +100,18 @@ const AnalysisTool = () => {
   };
 
   const stopCamera = () => {
-    if (videoRef.current && videoRef.current.srcObject) {
-      const stream = videoRef.current.srcObject as MediaStream;
-      const tracks = stream.getTracks();
-      tracks.forEach((track) => track.stop());
-      videoRef.current.srcObject = null;
-      setShowCamera(false);
+    if (streamRef.current) {
+      // Stop all tracks from the stream
+      streamRef.current.getTracks().forEach(track => track.stop());
+      streamRef.current = null;
     }
+    
+    // Reset video element's srcObject
+    if (videoRef.current) {
+      videoRef.current.srcObject = null;
+    }
+    
+    setShowCamera(false);
   };
 
   const triggerFileInput = () => {
@@ -91,8 +121,14 @@ const AnalysisTool = () => {
   };
 
   const startAnalysis = () => {
+    if (!selectedFile) {
+      toast.error("Please select or capture an image first");
+      return;
+    }
+    
     setIsAnalyzing(true);
     setAnalysisProgress(0);
+    toast.info("Starting analysis...");
 
     const interval = setInterval(() => {
       setAnalysisProgress((prev) => {
@@ -111,6 +147,7 @@ const AnalysisTool = () => {
                 "SPF 30+ Daily Sunscreen",
               ],
             });
+            toast.success("Analysis completed successfully!");
           }, 500);
           return 100;
         }

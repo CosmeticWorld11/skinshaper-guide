@@ -16,6 +16,7 @@ import FashionAnalysis from "./pages/FashionAnalysis";
 import Auth from "./pages/Auth";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
+import AnalysisTool from "./components/AnalysisTool";
 
 const queryClient = new QueryClient();
 
@@ -39,8 +40,7 @@ const App = () => (
               </ProtectedRoute>
             } />
             <Route path="/fashion" element={<FashionAnalysis />} />
-            {/* We'll add these routes later when we implement these pages */}
-            <Route path="/analysis" element={<Index />} />
+            <Route path="/analysis" element={<AnalysisTool />} />
             <Route path="/about" element={<Index />} />
             {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
             <Route path="*" element={<NotFound />} />

@@ -1,219 +1,184 @@
 
-import { toast } from "sonner";
+// Browser-compatible MongoDB service using localStorage
 
-// In a browser environment, we need to use a mock implementation
-// We'll simulate data storage using localStorage for now
-class MongoDbService {
-  private static instance: MongoDbService;
-  private collections: Record<string, any[]> = {};
-  private isConnected: boolean = false;
-  
+interface Document {
+  [key: string]: any;
+  _id?: string;
+}
+
+interface InsertOneResult {
+  insertedId: string;
+}
+
+interface Collection {
+  findOne: (query: object) => Promise<Document | null>;
+  find: (query: object) => {
+    sort: (sort: object) => {
+      toArray: () => Promise<Document[]>;
+    };
+  };
+  insertOne: (doc: Document) => Promise<InsertOneResult>;
+  updateOne: (query: object, update: object) => Promise<{ modifiedCount: number }>;
+  deleteOne: (query: object) => Promise<{ deletedCount: number }>;
+}
+
+class LocalMongoDBService {
+  private static instance: LocalMongoDBService | null = null;
+  private collections: { [name: string]: Document[] } = {};
+  private initializedCollections: Set<string> = new Set();
+
+  // Private constructor to enforce singleton
   private constructor() {
-    // Initialize collections from localStorage if available
+    this.loadFromLocalStorage();
+  }
+
+  static getInstance(): LocalMongoDBService {
+    if (!this.instance) {
+      this.instance = new LocalMongoDBService();
+    }
+    return this.instance;
+  }
+
+  // Load data from localStorage
+  private loadFromLocalStorage(): void {
     try {
-      const storedData = localStorage.getItem('eco-skin-db');
+      const storedData = localStorage.getItem('eco-skin-mongodb');
       if (storedData) {
         this.collections = JSON.parse(storedData);
-      } else {
-        // Initialize with empty collections
-        this.collections = {
-          users: [],
-          routines: [],
-          fashionAnalysis: []
-        };
-        this.saveToLocalStorage();
       }
     } catch (error) {
-      console.error("Error initializing local database:", error);
-      this.collections = {
-        users: [],
-        routines: [],
-        fashionAnalysis: []
-      };
+      console.error('Error loading data from localStorage:', error);
+      // Initialize with empty collections if there's an error
+      this.collections = {};
     }
-  }
-  
-  static getInstance(): MongoDbService {
-    if (!MongoDbService.instance) {
-      MongoDbService.instance = new MongoDbService();
-    }
-    return MongoDbService.instance;
   }
 
-  async connect(): Promise<any> {
-    if (this.isConnected) return this;
-    
-    try {
-      console.log("Connecting to local database...");
-      // Simulate connection delay
-      await new Promise(resolve => setTimeout(resolve, 100));
-      this.isConnected = true;
-      console.log("Connected to local database");
-      return this;
-    } catch (error) {
-      console.error("Error connecting to local database:", error);
-      toast.error("Failed to connect to database");
-      throw error;
-    }
-  }
-  
-  async close(): Promise<void> {
-    this.isConnected = false;
-    this.saveToLocalStorage();
-  }
-  
+  // Save data to localStorage
   private saveToLocalStorage(): void {
     try {
-      localStorage.setItem('eco-skin-db', JSON.stringify(this.collections));
+      localStorage.setItem('eco-skin-mongodb', JSON.stringify(this.collections));
     } catch (error) {
-      console.error("Error saving to localStorage:", error);
+      console.error('Error saving data to localStorage:', error);
     }
-  }
-  
-  async getCollection(collectionName: string) {
-    await this.connect();
-    
-    // Create collection if it doesn't exist
-    if (!this.collections[collectionName]) {
-      this.collections[collectionName] = [];
-    }
-    
-    // Return a collection-like interface
-    return {
-      find: (query = {}) => this.find(collectionName, query),
-      findOne: (query = {}) => this.findOne(collectionName, query),
-      insertOne: (document: any) => this.insertOne(collectionName, document),
-      updateOne: (filter: any, update: any) => this.updateOne(collectionName, filter, update),
-      deleteOne: (filter: any) => this.deleteOne(collectionName, filter)
-    };
-  }
-  
-  // Helper methods to simulate MongoDB operations
-  private find(collectionName: string, query: any) {
-    const collection = this.collections[collectionName] || [];
-    let results = [...collection];
-    
-    if (query && Object.keys(query).length > 0) {
-      results = results.filter(item => this.matchesQuery(item, query));
-    }
-    
-    return {
-      toArray: async () => results,
-      sort: (sortOptions: any) => {
-        // Simple sorting implementation
-        if (sortOptions) {
-          const [field, direction] = Object.entries(sortOptions)[0];
-          results.sort((a, b) => {
-            if (a[field] < b[field]) return direction === -1 ? 1 : -1;
-            if (a[field] > b[field]) return direction === -1 ? -1 : 1;
-            return 0;
-          });
-        }
-        return { toArray: async () => results };
-      }
-    };
-  }
-  
-  private async findOne(collectionName: string, query: any) {
-    const collection = this.collections[collectionName] || [];
-    
-    if (query._id) {
-      // Handle ObjectId strings
-      const id = typeof query._id === 'string' ? query._id : query._id.toString();
-      return collection.find(item => item._id === id || item._id.toString() === id);
-    }
-    
-    return collection.find(item => this.matchesQuery(item, query));
-  }
-  
-  private async insertOne(collectionName: string, document: any) {
-    if (!this.collections[collectionName]) {
-      this.collections[collectionName] = [];
-    }
-    
-    // Generate a unique ID if not provided
-    const _id = document._id || this.generateId();
-    const newDocument = { ...document, _id };
-    
-    this.collections[collectionName].push(newDocument);
-    this.saveToLocalStorage();
-    
-    return {
-      insertedId: _id,
-      acknowledged: true,
-      insertedCount: 1
-    };
-  }
-  
-  private async updateOne(collectionName: string, filter: any, update: any) {
-    if (!this.collections[collectionName]) {
-      return { modifiedCount: 0, acknowledged: true };
-    }
-    
-    const collection = this.collections[collectionName];
-    const index = collection.findIndex(item => this.matchesQuery(item, filter));
-    
-    if (index !== -1) {
-      if (update.$set) {
-        // Handle $set operation
-        this.collections[collectionName][index] = {
-          ...collection[index],
-          ...update.$set
-        };
-      } else {
-        // Direct update
-        this.collections[collectionName][index] = {
-          ...collection[index],
-          ...update
-        };
-      }
-      
-      this.saveToLocalStorage();
-      return { modifiedCount: 1, acknowledged: true };
-    }
-    
-    return { modifiedCount: 0, acknowledged: true };
-  }
-  
-  private async deleteOne(collectionName: string, filter: any) {
-    if (!this.collections[collectionName]) {
-      return { deletedCount: 0, acknowledged: true };
-    }
-    
-    const collection = this.collections[collectionName];
-    const initialLength = collection.length;
-    
-    this.collections[collectionName] = collection.filter(
-      item => !this.matchesQuery(item, filter)
-    );
-    
-    this.saveToLocalStorage();
-    
-    return {
-      deletedCount: initialLength - this.collections[collectionName].length,
-      acknowledged: true
-    };
-  }
-  
-  private matchesQuery(item: any, query: any): boolean {
-    return Object.entries(query).every(([key, value]) => {
-      if (key === '_id') {
-        const itemId = item._id?.toString();
-        const queryId = typeof value === 'string' ? value : value.toString();
-        return itemId === queryId;
-      }
-      return item[key] === value;
-    });
-  }
-  
-  private generateId(): string {
-    return Date.now().toString(36) + Math.random().toString(36).substr(2, 5);
   }
 
-  // Helper to simulate ObjectId conversion
-  toObjectId(id: string): string {
-    return id;
+  // Get or initialize a collection
+  async getCollection(name: string): Promise<Collection> {
+    // Initialize the collection if it doesn't exist
+    if (!this.collections[name]) {
+      this.collections[name] = [];
+    }
+
+    // Initialize demo data for collections if they're new
+    if (!this.initializedCollections.has(name)) {
+      this.initializedCollections.add(name);
+      if (name === 'users' && this.collections[name].length === 0) {
+        // Create a demo user
+        const demoUserId = this.generateId();
+        this.collections[name].push({
+          _id: demoUserId,
+          email: 'demo@example.com',
+          name: 'Demo User',
+          password: '$2b$10$abcdefghijklmnopqrst.e9HtZFPTJ9cFwdnOKWvDl9h45lGkrm7p', // password: "password123"
+          createdAt: new Date().toISOString()
+        });
+      }
+      this.saveToLocalStorage();
+    }
+
+    // Return collection interface
+    return {
+      findOne: async (query: object): Promise<Document | null> => {
+        const results = this.queryDocuments(name, query);
+        return results.length > 0 ? this.cloneDocument(results[0]) : null;
+      },
+      find: (query: object) => {
+        return {
+          sort: (sort: object) => {
+            return {
+              toArray: async (): Promise<Document[]> => {
+                const results = this.queryDocuments(name, query);
+                const sortField = Object.keys(sort)[0];
+                const sortOrder = sort[sortField];
+                
+                if (sortField) {
+                  results.sort((a, b) => {
+                    const valueA = a[sortField];
+                    const valueB = b[sortField];
+                    return sortOrder === 1 
+                      ? (valueA > valueB ? 1 : -1) 
+                      : (valueA < valueB ? 1 : -1);
+                  });
+                }
+                
+                return results.map(doc => this.cloneDocument(doc));
+              }
+            };
+          }
+        };
+      },
+      insertOne: async (doc: Document): Promise<InsertOneResult> => {
+        const _id = doc._id || this.generateId();
+        const docWithId = { ...doc, _id };
+        this.collections[name].push(docWithId);
+        this.saveToLocalStorage();
+        return { insertedId: _id };
+      },
+      updateOne: async (query: object, update: object): Promise<{ modifiedCount: number }> => {
+        const index = this.collections[name].findIndex(doc => this.matchesQuery(doc, query));
+        
+        if (index !== -1) {
+          const updateObj = update as { $set?: object };
+          if (updateObj.$set) {
+            this.collections[name][index] = {
+              ...this.collections[name][index],
+              ...updateObj.$set
+            };
+            this.saveToLocalStorage();
+            return { modifiedCount: 1 };
+          }
+        }
+        
+        return { modifiedCount: 0 };
+      },
+      deleteOne: async (query: object): Promise<{ deletedCount: number }> => {
+        const initialLength = this.collections[name].length;
+        this.collections[name] = this.collections[name].filter(doc => !this.matchesQuery(doc, query));
+        const deletedCount = initialLength - this.collections[name].length;
+        
+        if (deletedCount > 0) {
+          this.saveToLocalStorage();
+        }
+        
+        return { deletedCount };
+      }
+    };
+  }
+
+  // Helper to query documents
+  private queryDocuments(collectionName: string, query: object): Document[] {
+    return this.collections[collectionName].filter(doc => this.matchesQuery(doc, query));
+  }
+
+  // Check if a document matches a query
+  private matchesQuery(doc: Document, query: object): boolean {
+    return Object.entries(query).every(([key, value]) => {
+      if (key === '_id' && typeof value === 'string') {
+        return doc._id === value;
+      }
+      return JSON.stringify(doc[key]) === JSON.stringify(value);
+    });
+  }
+
+  // Clone document to avoid references
+  private cloneDocument(doc: Document): Document {
+    return JSON.parse(JSON.stringify(doc));
+  }
+
+  // Generate unique ID
+  private generateId(): string {
+    return Date.now().toString(36) + Math.random().toString(36).substring(2);
   }
 }
 
-export const mongoDbService = MongoDbService.getInstance();
+export const mongoDbService = LocalMongoDBService.getInstance();
