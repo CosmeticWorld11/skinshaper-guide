@@ -189,7 +189,7 @@ export class AuthService {
   
   verifyToken(token: string): { valid: boolean; userId?: string } {
     try {
-      const decoded = jwtCompat.verify(token, JWT_SECRET) as { id: string; email: string };
+      const decoded = jwtCompat.verify(token, JWT_SECRET);
       return { valid: true, userId: decoded.id };
     } catch (error) {
       return { valid: false };
