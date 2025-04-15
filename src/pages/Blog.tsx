@@ -298,7 +298,7 @@ const Blog = () => {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = fallbackImage;
+                          target.src = fallbackImages[0];
                         }}
                       />
                       <div className="absolute top-4 left-4">
@@ -356,7 +356,7 @@ const Blog = () => {
                         className="w-full h-full object-cover"
                         onError={(e) => {
                           const target = e.target as HTMLImageElement;
-                          target.src = fallbackImage;
+                          target.src = fallbackImages[0];
                         }}
                       />
                     </div>
