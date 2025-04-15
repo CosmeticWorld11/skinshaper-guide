@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -8,7 +7,6 @@ import FeatureNavigation from "@/components/FeatureNavigation";
 import Recommendations from "@/components/Recommendations";
 import Footer from "@/components/Footer";
 import { Button } from "@/components/ui/button";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { Card, CardContent } from "@/components/ui/card";
 import { Brush, Shirt, TrendingUp, ShoppingBag } from "lucide-react";
 
@@ -18,117 +16,6 @@ const Index = () => {
       <Navbar />
       <Hero />
       <AnalysisTool />
-      
-      <section className="py-10 bg-skin-50/50">
-        <div className="container mx-auto px-4">
-          <h2 className="text-2xl md:text-3xl font-serif font-semibold text-center mb-6 text-foreground">
-            Latest Beauty and Fashion Trends
-          </h2>
-          <Tabs defaultValue="beauty" className="max-w-4xl mx-auto">
-            <TabsList className="grid w-full grid-cols-2 mb-6">
-              <TabsTrigger value="beauty">Beauty</TabsTrigger>
-              <TabsTrigger value="fashion">Fashion</TabsTrigger>
-            </TabsList>
-            <TabsContent value="beauty" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div className="bg-background rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                    <img 
-                      src="https://images.unsplash.com/photo-1596704017254-9759879d8351?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                      alt="Skincare routine" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-medium mb-2 text-foreground">Glowing Skin Trends</h3>
-                  <p className="text-sm text-muted-foreground">The latest innovations in dewy, glass skin techniques</p>
-                </div>
-                <div className="bg-background rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                    <img 
-                      src="https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                      alt="Makeup palette" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-medium mb-2 text-foreground">Minimalist Makeup</h3>
-                  <p className="text-sm text-muted-foreground">Achieve more with less using multi-purpose products</p>
-                </div>
-                <div className="bg-background rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow">
-                  <div className="aspect-video rounded-lg overflow-hidden mb-3">
-                    <img 
-                      src="https://images.unsplash.com/photo-1597931663067-56b5c9f6000a?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                      alt="Hair care products" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <h3 className="font-medium mb-2 text-foreground">Natural Hair Care</h3>
-                  <p className="text-sm text-muted-foreground">Embrace your natural texture with these nourishing methods</p>
-                </div>
-              </div>
-            </TabsContent>
-            <TabsContent value="fashion" className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <Card className="bg-background border-skin-100 overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1483985988355-763728e1935b?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                      alt="Sustainable fashion" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-2 text-foreground">Sustainable Style</h3>
-                    <p className="text-sm text-muted-foreground">Eco-friendly fashion choices that don't sacrifice style</p>
-                    <div className="mt-3">
-                      <Link to="/fashion" className="text-skin-600 text-sm font-medium hover:underline">
-                        Explore →
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-background border-skin-100 overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1525507119028-ed4c629a60a3?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                      alt="Seasonal colors" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-2 text-foreground">AI Color Analysis</h3>
-                    <p className="text-sm text-muted-foreground">Find your perfect color palette with our AI tools</p>
-                    <div className="mt-3">
-                      <Link to="/fashion" className="text-skin-600 text-sm font-medium hover:underline">
-                        Try it now →
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-                
-                <Card className="bg-background border-skin-100 overflow-hidden hover:shadow-md transition-shadow">
-                  <div className="aspect-video overflow-hidden">
-                    <img 
-                      src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?ixlib=rb-1.2.1&auto=format&fit=crop&w=800&q=80" 
-                      alt="Accessories" 
-                      className="w-full h-full object-cover"
-                    />
-                  </div>
-                  <CardContent className="p-4">
-                    <h3 className="font-medium mb-2 text-foreground">Style Matching</h3>
-                    <p className="text-sm text-muted-foreground">Let AI help you discover your unique fashion style</p>
-                    <div className="mt-3">
-                      <Link to="/fashion" className="text-skin-600 text-sm font-medium hover:underline">
-                        Discover more →
-                      </Link>
-                    </div>
-                  </CardContent>
-                </Card>
-              </div>
-            </TabsContent>
-          </Tabs>
-        </div>
-      </section>
       
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
