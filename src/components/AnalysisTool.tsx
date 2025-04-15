@@ -5,6 +5,7 @@ import { Camera, Upload, AlertCircle, Check, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
+import BackButton from "./BackButton"; // Import the BackButton component
 
 const AnalysisTool = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -165,7 +166,8 @@ const AnalysisTool = () => {
   };
 
   return (
-    <section className="py-20 px-4 bg-gradient-to-b from-white to-skin-50">
+    <section className="py-20 px-4 bg-gradient-to-b from-white to-skin-50 relative">
+      <BackButton /> {/* Add the BackButton component */}
       <div className="container mx-auto max-w-5xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">
@@ -371,3 +373,4 @@ const AnalysisTool = () => {
 };
 
 export default AnalysisTool;
+
