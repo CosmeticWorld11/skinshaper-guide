@@ -32,7 +32,56 @@ type BlogPost = {
   tags: string[];
 };
 
-const fallbackImage = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80";
+const fallbackImages = [
+  "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+  "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+  "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+  "https://images.unsplash.com/photo-1580618864180-f6d7d39b8ff6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+  "https://images.unsplash.com/photo-1583241801142-113b9f5bbde5?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80"
+];
+
+const getFallbackImage = (index: number) => {
+  return fallbackImages[index % fallbackImages.length];
+};
+
+const placeholderPosts: BlogPost[] = [
+  {
+    id: 9001,
+    title: "The Future of Sustainable Beauty: 2025 Trends",
+    excerpt: "Explore how eco-conscious beauty brands are revolutionizing the industry with innovative sustainable practices and clean ingredients for a greener future.",
+    category: "Skincare",
+    coverImage: "https://images.unsplash.com/photo-1596462502278-27bfdc403348?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    date: "April 10, 2025",
+    readTime: "5 min read",
+    author: "Emma Davis",
+    authorImage: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
+    tags: ["Sustainability", "Clean Beauty", "Future Trends"]
+  },
+  {
+    id: 9002,
+    title: "The Rise of AI-Powered Beauty: Personalized Skincare Solutions",
+    excerpt: "Discover how artificial intelligence is transforming personalized skincare routines with custom formulations tailored to individual skin needs and concerns.",
+    category: "Cosmetics",
+    coverImage: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    date: "April 8, 2025",
+    readTime: "4 min read",
+    author: "Michael Chen",
+    authorImage: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
+    tags: ["AI", "Technology", "Custom Beauty"]
+  },
+  {
+    id: 9003,
+    title: "Fashion Week 2025: Eco-Skin's Revolutionary Runway Collection",
+    excerpt: "Style meets sustainability on the runway as Eco-Skin unveils its groundbreaking collection featuring biodegradable fabrics and plant-based dyes.",
+    category: "Fashion",
+    coverImage: "https://images.unsplash.com/photo-1580618864180-f6d7d39b8ff6?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80",
+    date: "April 12, 2025",
+    readTime: "6 min read",
+    author: "Sofia Rodriguez",
+    authorImage: "https://images.unsplash.com/photo-1573496359142-b8d87734a5a2?ixlib=rb-1.2.1&auto=format&fit=crop&w=100&q=80",
+    tags: ["Fashion Week", "Sustainable Fashion", "Eco-Friendly"]
+  }
+];
 
 const convertToBlogPost = (article: NewsArticle, index: number): BlogPost => {
   const categoryMap: Record<string, BlogPostCategory> = {
@@ -40,7 +89,7 @@ const convertToBlogPost = (article: NewsArticle, index: number): BlogPost => {
     lifestyle: "Fashion",
     science: "Skincare",
     technology: "Cosmetics",
-    world: "Fashion",
+    entertainment: "Fashion",
   };
 
   const getCategory = (): BlogPostCategory => {
@@ -64,7 +113,7 @@ const convertToBlogPost = (article: NewsArticle, index: number): BlogPost => {
     title: article.title || "Untitled Article",
     excerpt: article.description || article.content?.substring(0, 150) + "..." || "No description available",
     category: getCategory(),
-    coverImage: article.image_url || fallbackImage,
+    coverImage: article.image_url || getFallbackImage(index),
     date: new Date(article.pubDate || Date.now()).toLocaleDateString("en-US", {
       year: "numeric",
       month: "long",
@@ -142,8 +191,13 @@ const Blog = () => {
     });
   };
 
-  const blogPosts: BlogPost[] = 
+  let blogPosts: BlogPost[] = 
     newsData?.results?.map(convertToBlogPost) || [];
+    
+  if (blogPosts.length < 5) {
+    const neededPlaceholders = 5 - blogPosts.length;
+    blogPosts = [...blogPosts, ...placeholderPosts.slice(0, neededPlaceholders)];
+  }
 
   const filteredPosts = activeCategory === "All" 
     ? blogPosts 

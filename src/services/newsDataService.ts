@@ -31,7 +31,8 @@ export const fetchNewsArticles = async (page?: string): Promise<NewsResponse> =>
       apikey: API_KEY,
       q: "Fashion cosmetics skincare beauty trends,skin treatments,beauty products",
       language: "en",
-      category: "entertainment,health,lifestyle,science,technology,world",
+      // Limit to 5 categories as per API restrictions
+      category: "entertainment,health,lifestyle,science,technology",
       size: "10",
     });
     

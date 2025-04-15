@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from "react";
 import { 
   Upload, 
@@ -46,25 +45,21 @@ const FashionAnalysisTool: React.FC = () => {
     }
   };
 
-  // Handle file selection
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     if (event.target.files && event.target.files[0]) {
       const selectedFile = event.target.files[0];
       setFile(selectedFile);
       setPreviewUrl(URL.createObjectURL(selectedFile));
 
-      // Reset analysis state
       setResult(null);
       setProgress(0);
     }
   };
 
-  // Handle camera capture (would require camera API integration)
   const handleCameraCapture = () => {
     toast.info("Camera functionality is currently in development.");
   };
 
-  // Analyze image with AI
   const handleAnalyze = async () => {
     if (!file) {
       toast.error("Please upload an image first");
@@ -80,29 +75,24 @@ const FashionAnalysisTool: React.FC = () => {
     setProgress(0);
 
     try {
-      // Load the image
       const img = await fashionAnalysisService.loadImage(file);
       
-      // Simulate progress
       const interval = setInterval(() => {
         setProgress(prev => {
           if (prev >= 90) {
             clearInterval(interval);
-            return 90; // Hold at 90% until analysis completes
+            return 90;
           }
           return prev + 5;
         });
       }, 200);
 
-      // Perform analysis
       const analysisResult = await fashionAnalysisService.analyzeImage(img, user!._id!);
       
-      // Complete progress and set result
       clearInterval(interval);
       setProgress(100);
       setResult(analysisResult);
       
-      // Refresh previous analyses
       loadUserAnalyses();
       
       toast.success("Fashion analysis completed successfully!");
@@ -117,10 +107,8 @@ const FashionAnalysisTool: React.FC = () => {
   const loadPreviousAnalysis = (analysis: AnalysisResult) => {
     setResult(analysis);
     setShowHistory(false);
-    // No need to set file/previewUrl since we're loading from history
   };
 
-  // Render the color analysis section
   const renderColorAnalysis = () => {
     if (!result) return null;
     
@@ -182,7 +170,6 @@ const FashionAnalysisTool: React.FC = () => {
     );
   };
 
-  // Render the style matching section
   const renderStyleMatching = () => {
     if (!result) return null;
     
@@ -248,7 +235,6 @@ const FashionAnalysisTool: React.FC = () => {
     );
   };
 
-  // Render the trend detection section
   const renderTrendDetection = () => {
     if (!result) return null;
     
@@ -316,7 +302,6 @@ const FashionAnalysisTool: React.FC = () => {
     );
   };
 
-  // Render the outfit generation section
   const renderOutfitGeneration = () => {
     if (!result) return null;
     
@@ -367,7 +352,6 @@ const FashionAnalysisTool: React.FC = () => {
     );
   };
 
-  // Render previous analyses
   const renderPreviousAnalyses = () => {
     if (previousAnalyses.length === 0) {
       return (
@@ -394,7 +378,11 @@ const FashionAnalysisTool: React.FC = () => {
                   {new Date(analysis.createdAt).toLocaleDateString()}
                 </p>
               </div>
-              <Button size="sm" variant="ghost">
+              <Button 
+                variant="ghost"
+                size="sm"
+                className="gap-1"
+              >
                 View
               </Button>
             </div>
@@ -404,7 +392,6 @@ const FashionAnalysisTool: React.FC = () => {
     );
   };
 
-  // Helper function to get color code from color name
   const getColorCode = (colorName: string): string => {
     const colorMap: Record<string, string> = {
       "Navy Blue": "#1B2A41",
@@ -419,9 +406,8 @@ const FashionAnalysisTool: React.FC = () => {
   };
 
   return (
-    <div className="container mx-auto px-4 py-10">
+    <div className="container mx-auto px-4 py-10 mt-16">
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        {/* Left Column: Image Upload & Analysis */}
         <div className="lg:col-span-1">
           <Card className="bg-white border-skin-100">
             <CardContent className="p-6 space-y-6">
@@ -500,7 +486,6 @@ const FashionAnalysisTool: React.FC = () => {
                     </div>
                   )}
                   
-                  {/* Analysis Button */}
                   {file && !isAnalyzing && !result && (
                     <Button 
                       className="w-full bg-skin-600 hover:bg-skin-700"
@@ -511,7 +496,6 @@ const FashionAnalysisTool: React.FC = () => {
                     </Button>
                   )}
                   
-                  {/* Analysis Progress */}
                   {isAnalyzing && (
                     <div className="space-y-3">
                       <div className="flex justify-between text-sm">
@@ -526,7 +510,6 @@ const FashionAnalysisTool: React.FC = () => {
                     </div>
                   )}
                   
-                  {/* Analysis Results Summary */}
                   {result && (
                     <div className="space-y-4">
                       <div className="py-2 px-3 bg-green-50 text-green-700 rounded-md text-sm flex items-center gap-2">
@@ -569,7 +552,6 @@ const FashionAnalysisTool: React.FC = () => {
           </Card>
         </div>
         
-        {/* Right Column: Analysis Results */}
         <div className="lg:col-span-2">
           {!result ? (
             <Card className="bg-white border-skin-100 h-full">
@@ -639,7 +621,6 @@ const FashionAnalysisTool: React.FC = () => {
                   </Button>
                 </div>
                 
-                {/* Render the active tab content */}
                 {activeTab === 'color' && renderColorAnalysis()}
                 {activeTab === 'style' && renderStyleMatching()}
                 {activeTab === 'trend' && renderTrendDetection()}
