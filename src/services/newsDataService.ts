@@ -1,3 +1,4 @@
+
 import { toast } from "@/hooks/use-toast";
 
 export interface NewsArticle {
@@ -28,9 +29,10 @@ export const fetchNewsArticles = async (page?: string): Promise<NewsResponse> =>
   try {
     const queryParams = new URLSearchParams({
       apikey: API_KEY,
-      q: "Fashion cosmetics",
-      language: "en,hi,kn,ta,te",
-      category: "health,lifestyle,science,technology,world",
+      q: "Fashion cosmetics skincare beauty trends,skin treatments,beauty products",
+      language: "en",
+      category: "entertainment,health,lifestyle,science,technology,world",
+      size: "10",
     });
     
     if (page) {

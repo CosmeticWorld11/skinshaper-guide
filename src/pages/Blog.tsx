@@ -1,8 +1,8 @@
-
 import React, { useState, useEffect } from "react";
 import { useQuery } from "@tanstack/react-query";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import BackButton from "@/components/BackButton";
 import { Button } from "@/components/ui/button";
 import { Calendar, Clock, User, Tag, ChevronRight, Search, Loader2 } from "lucide-react";
 import { Input } from "@/components/ui/input";
@@ -34,7 +34,6 @@ type BlogPost = {
 
 const fallbackImage = "https://images.unsplash.com/photo-1540555700478-4be289fbecef?ixlib=rb-1.2.1&auto=format&fit=crop&w=1350&q=80";
 
-// Function to convert NewsArticle to BlogPost format
 const convertToBlogPost = (article: NewsArticle, index: number): BlogPost => {
   const categoryMap: Record<string, BlogPostCategory> = {
     health: "Skincare",
@@ -55,11 +54,9 @@ const convertToBlogPost = (article: NewsArticle, index: number): BlogPost => {
     return "Cosmetics";
   };
 
-  // Calculate approximate read time (1 min per 200 words)
   const contentLength = article.content?.length || 0;
   const readTime = Math.max(1, Math.round(contentLength / 1000)) + " min read";
 
-  // Extract tags from category or create default ones
   const tags = article.category?.slice(0, 3) || ["Beauty", "Lifestyle"];
 
   return {
@@ -108,7 +105,7 @@ const Blog = () => {
   } = useQuery({
     queryKey: ["newsArticles", nextPageToken],
     queryFn: () => fetchNewsArticles(nextPageToken || undefined),
-    staleTime: 5 * 60 * 1000, // 5 minutes
+    staleTime: 5 * 60 * 1000,
   });
 
   useEffect(() => {
@@ -139,29 +136,26 @@ const Blog = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    // In a real implementation, we would update the API call with the search query
     toast({
       title: "Search functionality",
       description: `Searching for "${searchQuery}"...`,
     });
   };
 
-  // Transform API data to our blog post format
   const blogPosts: BlogPost[] = 
     newsData?.results?.map(convertToBlogPost) || [];
 
-  // Filter based on active category
   const filteredPosts = activeCategory === "All" 
     ? blogPosts 
     : blogPosts.filter(post => post.category === activeCategory);
 
-  // Get featured post and other posts
   const featuredPost = filteredPosts.length > 0 ? filteredPosts[0] : null;
   const otherPosts = filteredPosts.length > 0 ? filteredPosts.slice(1) : [];
 
   return (
     <div className="min-h-screen bg-background" data-testid="blog-page">
       <Navbar />
+      <BackButton />
       
       <div className="container mx-auto px-4 py-16">
         <div className="text-center mb-16">
@@ -172,7 +166,6 @@ const Blog = () => {
             Discover the latest trends, expert advice, and insider tips on skincare, cosmetics, and fashion.
           </p>
           
-          {/* Search Form */}
           <form onSubmit={handleSearch} className="mt-8 flex max-w-md mx-auto">
             <Input
               type="text"
@@ -188,7 +181,6 @@ const Blog = () => {
           </form>
         </div>
 
-        {/* Category Filters */}
         <div className="flex flex-wrap gap-2 mb-8 justify-center">
           <Button 
             variant={activeCategory === "All" ? "default" : "outline"} 
@@ -241,7 +233,6 @@ const Blog = () => {
           </div>
         ) : (
           <>
-            {/* Featured Post */}
             {featuredPost && (
               <div className="mb-16">
                 <div className="relative rounded-2xl overflow-hidden glass-card">
@@ -300,7 +291,6 @@ const Blog = () => {
               </div>
             )}
 
-            {/* Blog Grid */}
             <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
               {otherPosts.map((post, index) => (
                 <div key={post.id} className="glass-card rounded-xl overflow-hidden transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
@@ -363,7 +353,6 @@ const Blog = () => {
               ))}
             </div>
 
-            {/* Pagination */}
             {nextPageToken && (
               <div className="mt-12 text-center">
                 <Button 

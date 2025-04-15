@@ -35,21 +35,21 @@ const Hero = () => {
       title: "Fermented Beauty",
       description: "Products containing fermented ingredients like kombucha and rice water gaining popularity for their enhanced potency.",
       icon: <Leaf className="h-5 w-5 text-green-500" />,
-      image: "https://images.unsplash.com/photo-1570172619644-dfd03ed5d881?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+      image: "https://images.unsplash.com/photo-1618160702438-9b02ab6515c9"
     },
     {
       category: "Makeup",
       title: "Skinimalism",
       description: "The 'less is more' approach focusing on enhancing natural beauty with fewer, multi-purpose products.",
       icon: <Sparkles className="h-5 w-5 text-purple-500" />,
-      image: "https://images.unsplash.com/photo-1522335789203-aabd1fc54bc9?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+      image: "https://images.unsplash.com/photo-1596704017254-9759879d8351"
     },
     {
       category: "Fashion",
       title: "Sustainable Fabrics",
       description: "Eco-conscious materials like organic cotton, hemp, and recycled fibers becoming mainstream in fashion.",
       icon: <TrendingUp className="h-5 w-5 text-blue-500" />,
-      image: "https://images.unsplash.com/photo-1556905055-8f358a7a47b2?ixlib=rb-1.2.1&auto=format&fit=crop&w=300&q=80"
+      image: "https://images.unsplash.com/photo-1472396961693-142e6e269027"
     }
   ];
 
