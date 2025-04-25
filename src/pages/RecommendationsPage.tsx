@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Recommendations from "@/components/Recommendations";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, BookOpen } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const RecommendationsPage = () => {
@@ -13,17 +13,11 @@ const RecommendationsPage = () => {
       <Navbar />
       
       <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
+        <div className="mb-8">
           <Link to="/">
             <Button variant="outline" size="sm" className="rounded-full">
               <ArrowLeft className="mr-2 h-4 w-4" />
-              Back to Home
-            </Button>
-          </Link>
-          <Link to="/eco-beauty-guide">
-            <Button variant="outline" size="sm" className="rounded-full text-primary border-primary hover:bg-primary/10">
-              <BookOpen className="mr-2 h-4 w-4" />
-              View Complete Eco Beauty Guide
+              Back
             </Button>
           </Link>
         </div>
