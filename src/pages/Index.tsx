@@ -1,5 +1,5 @@
 import React from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import AnalysisTool from "@/components/AnalysisTool";
@@ -11,6 +11,13 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Brush, Shirt, TrendingUp, ShoppingBag } from "lucide-react";
 
 const Index = () => {
+  const navigate = useNavigate();
+
+  const handleFashionAnalysisClick = () => {
+    navigate("/fashion");
+    window.scrollTo(0, 0);
+  };
+
   return (
     <div className="min-h-screen bg-background" data-testid="home-page">
       <Navbar />
@@ -108,11 +115,12 @@ const Index = () => {
           </div>
           
           <div className="mt-12 flex justify-center">
-            <Link to="/fashion">
-              <Button className="bg-skin-600 hover:bg-skin-700 rounded-full px-8 py-6 text-lg">
-                Try AI Fashion Analysis
-              </Button>
-            </Link>
+            <Button 
+              onClick={handleFashionAnalysisClick}
+              className="bg-skin-600 hover:bg-skin-700 rounded-full px-8 py-6 text-lg"
+            >
+              Try AI Fashion Analysis
+            </Button>
           </div>
         </div>
       </section>

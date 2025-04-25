@@ -17,7 +17,7 @@ const BackButton = () => {
     <Button
       variant="outline"
       size="sm"
-      className="fixed top-4 left-4 z-50 bg-white/80 backdrop-blur-sm hover:bg-white"
+      className="bg-white/80 backdrop-blur-sm hover:bg-white"
       onClick={() => navigate(-1)}
     >
       <ArrowLeft className="h-4 w-4 mr-2" />
