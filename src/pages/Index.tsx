@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Link, useNavigate } from "react-router-dom";
 import Navbar from "@/components/Navbar";
@@ -16,7 +15,6 @@ const Index = () => {
 
   const handleFashionAnalysisClick = () => {
     navigate("/fashion");
-    // Remove window.scrollTo(0, 0) to prevent scrolling
   };
 
   return (
