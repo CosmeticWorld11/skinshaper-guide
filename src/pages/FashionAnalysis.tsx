@@ -1,4 +1,3 @@
-
 import React from "react";
 import { Brush, Shirt, TrendingUp, ShoppingBag } from "lucide-react";
 import Navbar from "@/components/Navbar";
@@ -13,9 +12,8 @@ const FashionAnalysis = () => {
     <div className="min-h-screen bg-background">
       <Navbar />
       
-      <div className="pt-24 pb-16 bg-skin-50">
+      <div className="pt-28 pb-16 bg-skin-50">
         <div className="container mx-auto px-4">
-          {/* Hero Section */}
           <div className="flex flex-col md:flex-row gap-8 items-center">
             <div className="flex-1">
               <div className="mb-2 inline-block">
@@ -32,10 +30,8 @@ const FashionAnalysis = () => {
               </p>
               <div className="flex flex-wrap gap-4">
                 <Button className="gap-2 rounded-full bg-skin-600 hover:bg-skin-700">
-                  <span className="flex items-center">
-                    <Brush className="mr-2 h-4 w-4" />
-                    Analyze My Style
-                  </span>
+                  <Brush className="mr-2 h-4 w-4" />
+                  Analyze My Style
                 </Button>
                 <Button variant="outline" className="gap-2 rounded-full">
                   Learn More
@@ -45,74 +41,76 @@ const FashionAnalysis = () => {
                 </Button>
               </div>
             </div>
+            
             <div className="flex-1">
-              <div className="bg-white rounded-lg p-6 shadow-md">
-                <h2 className="text-2xl font-serif font-bold mb-4 text-center">AI Fashion Analysis</h2>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-foreground">Style Analysis</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Pattern Recognition</span>
-                        <span className="font-medium">98%</span>
+              <Card className="bg-white shadow-md">
+                <CardContent className="p-6">
+                  <h2 className="text-2xl font-serif font-bold mb-4 text-center">AI Fashion Analysis</h2>
+                  
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                    <div className="space-y-4">
+                      <h3 className="font-medium text-foreground">Style Analysis</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Pattern Recognition</span>
+                          <span className="font-medium">98%</span>
+                        </div>
+                        <Progress value={98} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
                       </div>
-                      <Progress value={98} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
+                    </div>
+                    
+                    <div className="space-y-4">
+                      <h3 className="font-medium text-foreground">AI Features</h3>
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Style Matching</span>
+                          <span className="font-medium">95%</span>
+                        </div>
+                        <Progress value={95} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
+                      </div>
                     </div>
                   </div>
                   
-                  <div className="space-y-4">
-                    <h3 className="font-medium text-foreground">AI Features</h3>
-                    <div className="space-y-2">
-                      <div className="flex justify-between text-sm">
-                        <span>Style Matching</span>
-                        <span className="font-medium">95%</span>
-                      </div>
-                      <Progress value={95} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground">AI Features</h3>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-skin-600 mr-2"></div>
+                          Color Analysis
+                        </li>
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-skin-600 mr-2"></div>
+                          Style Matching
+                        </li>
+                      </ul>
+                    </div>
+                    
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-foreground">AI Features</h3>
+                      <ul className="space-y-2 text-sm">
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-blush-500 mr-2"></div>
+                          Trend Detection
+                        </li>
+                        <li className="flex items-center">
+                          <div className="w-2 h-2 rounded-full bg-blush-500 mr-2"></div>
+                          Outfit Generation
+                        </li>
+                      </ul>
                     </div>
                   </div>
-                </div>
-                
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">AI Features</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-skin-600 mr-2"></div>
-                        Color Analysis
-                      </li>
-                      <li className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-skin-600 mr-2"></div>
-                        Style Matching
-                      </li>
-                    </ul>
-                  </div>
                   
-                  <div className="space-y-3">
-                    <h3 className="font-medium text-foreground">AI Features</h3>
-                    <ul className="space-y-2 text-sm">
-                      <li className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-blush-500 mr-2"></div>
-                        Trend Detection
-                      </li>
-                      <li className="flex items-center">
-                        <div className="w-2 h-2 rounded-full bg-blush-500 mr-2"></div>
-                        Outfit Generation
-                      </li>
-                    </ul>
+                  <div className="mt-6 flex justify-center">
+                    <Button className="bg-skin-600 hover:bg-skin-700 rounded-full">
+                      Try AI Analysis
+                    </Button>
                   </div>
-                </div>
-                
-                <div className="mt-6 flex justify-center">
-                  <Button className="bg-skin-600 hover:bg-skin-700 rounded-full">
-                    Try AI Analysis
-                  </Button>
-                </div>
-              </div>
+                </CardContent>
+              </Card>
             </div>
           </div>
           
-          {/* Steps */}
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mt-16">
             <Card className="bg-white/70 backdrop-blur-sm border border-skin-100">
               <CardContent className="p-6 text-center">
@@ -153,12 +151,12 @@ const FashionAnalysis = () => {
         </div>
       </div>
 
-      {/* ADDED: Fashion Analysis Tool */}
       <section className="py-16 bg-white">
-        <FashionAnalysisTool />
+        <div className="container mx-auto px-4">
+          <FashionAnalysisTool />
+        </div>
       </section>
       
-      {/* Fashion & Style Updates */}
       <section className="py-16 bg-skin-50/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-serif font-bold mb-8">Fashion & Style Updates</h2>
@@ -224,7 +222,6 @@ const FashionAnalysis = () => {
         </div>
       </section>
       
-      {/* Smart Style Analysis */}
       <section className="py-16 bg-white">
         <div className="container mx-auto px-4">
           <div className="flex justify-center mb-6">
@@ -287,7 +284,6 @@ const FashionAnalysis = () => {
         </div>
       </section>
       
-      {/* Feature sections - Color Analysis, Style Matching, etc. */}
       <section className="py-16 bg-skin-50/50">
         <div className="container mx-auto px-4">
           <h2 className="text-3xl font-serif font-bold text-center mb-12">Our AI Fashion Features</h2>

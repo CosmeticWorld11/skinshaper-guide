@@ -1,32 +1,11 @@
 import React, { useState, useEffect } from "react";
-import { 
-  Upload, 
-  Camera, 
-  Shirt, 
-  TrendingUp, 
-  Brush, 
-  ShoppingBag,
-  Check,
-  Save,
-  History,
-  ChevronLeft
-} from "lucide-react";
+import { Upload, Camera, Shirt, TrendingUp, Brush, ShoppingBag } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Progress } from "@/components/ui/progress";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 import { fashionAnalysisService, AnalysisResult } from "@/services/fashionAnalysisService";
-import {
-  Sidebar,
-  SidebarContent,
-  SidebarHeader,
-  SidebarMenu,
-  SidebarMenuButton,
-  SidebarMenuItem,
-  SidebarProvider,
-  SidebarInset
-} from "@/components/ui/sidebar";
 import BackButton from "@/components/BackButton";
 
 const FashionAnalysisTool: React.FC = () => {
@@ -418,252 +397,198 @@ const FashionAnalysisTool: React.FC = () => {
   };
 
   return (
-    <SidebarProvider>
-      <div className="min-h-screen flex w-full bg-background">
-        <Sidebar>
-          <SidebarHeader className="p-4">
-            <div className="flex items-center gap-2">
-              <BackButton />
-              <h2 className="text-lg font-serif">Fashion Analysis</h2>
-            </div>
-          </SidebarHeader>
-          <SidebarContent>
-            <SidebarMenu>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={() => setActiveTab('color')}
-                  isActive={activeTab === 'color'}
-                  tooltip="Color Analysis"
-                >
-                  <Brush className="h-4 w-4" />
-                  <span>Color Analysis</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={() => setActiveTab('style')}
-                  isActive={activeTab === 'style'}
-                  tooltip="Style Matching"
-                >
-                  <Shirt className="h-4 w-4" />
-                  <span>Style Matching</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={() => setActiveTab('trend')}
-                  isActive={activeTab === 'trend'}
-                  tooltip="Trend Detection"
-                >
-                  <TrendingUp className="h-4 w-4" />
-                  <span>Trend Detection</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton 
-                  onClick={() => setActiveTab('outfit')}
-                  isActive={activeTab === 'outfit'}
-                  tooltip="Outfit Generation"
-                >
-                  <ShoppingBag className="h-4 w-4" />
-                  <span>Outfit Generation</span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-            </SidebarMenu>
-          </SidebarContent>
-        </Sidebar>
+    <div className="mt-4">
+      <div className="flex items-center gap-4 mb-6">
+        <BackButton />
+        <h2 className="text-2xl font-serif font-semibold">Fashion Analysis</h2>
+      </div>
 
-        <SidebarInset>
-          <div className="container mx-auto py-8 px-4">
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-              <div className="lg:col-span-1">
-                <Card className="bg-white border-skin-100 sticky top-8">
-                  <CardContent className="p-6 space-y-6">
-                    <div className="flex justify-between items-center">
-                      <h3 className="text-xl font-serif font-semibold">Upload Fashion Image</h3>
-                      
-                      {isAuthenticated && previousAnalyses.length > 0 && (
-                        <Button 
-                          variant="outline" 
-                          size="sm" 
-                          className="gap-1"
-                          onClick={() => setShowHistory(!showHistory)}
-                        >
-                          <History className="h-3.5 w-3.5" />
-                          History
-                        </Button>
-                      )}
-                    </div>
-                    
-                    {showHistory ? (
-                      renderPreviousAnalyses()
-                    ) : (
-                      <>
-                        {previewUrl ? (
-                          <div className="relative aspect-square w-full overflow-hidden rounded-lg mb-4">
-                            <img 
-                              src={previewUrl} 
-                              alt="Preview" 
-                              className="w-full h-full object-cover"
-                            />
-                            <button 
-                              className="absolute top-2 right-2 bg-white/80 p-1 rounded-full hover:bg-white"
-                              onClick={() => {
-                                setFile(null);
-                                setPreviewUrl(null);
-                                setResult(null);
-                              }}
-                            >
-                              <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
-                                <path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
-                              </svg>
-                            </button>
-                          </div>
-                        ) : (
-                          <div className="border-2 border-dashed border-skin-200 rounded-lg p-8 text-center">
-                            <div className="flex justify-center mb-4">
-                              <Upload className="h-10 w-10 text-skin-400" />
-                            </div>
-                            <p className="text-sm text-muted-foreground mb-4">
-                              Upload a photo of your outfit or clothing item
-                            </p>
-                            <div className="flex justify-center gap-4">
-                              <Button 
-                                onClick={() => document.getElementById('file-upload')?.click()}
-                                className="bg-skin-600 hover:bg-skin-700 gap-2"
-                              >
-                                <Upload className="h-4 w-4" />
-                                Upload Image
-                              </Button>
-                              <Button 
-                                variant="outline" 
-                                onClick={handleCameraCapture}
-                                className="gap-2"
-                              >
-                                <Camera className="h-4 w-4" />
-                                Use Camera
-                              </Button>
-                              <input 
-                                id="file-upload"
-                                type="file" 
-                                accept="image/*" 
-                                className="hidden" 
-                                onChange={handleFileChange}
-                              />
-                            </div>
-                          </div>
-                        )}
-                        
-                        {file && !isAnalyzing && !result && (
-                          <Button 
-                            className="w-full bg-skin-600 hover:bg-skin-700"
-                            onClick={handleAnalyze}
-                            disabled={!isAuthenticated}
-                          >
-                            {isAuthenticated ? "Analyze Fashion" : "Login to Analyze"}
-                          </Button>
-                        )}
-                        
-                        {isAnalyzing && (
-                          <div className="space-y-3">
-                            <div className="flex justify-between text-sm">
-                              <span>Analyzing your fashion...</span>
-                              <span className="font-medium">{progress}%</span>
-                            </div>
-                            <Progress 
-                              value={progress} 
-                              className="h-2 bg-skin-200" 
-                              indicatorClassName="bg-skin-600" 
-                            />
-                          </div>
-                        )}
-                        
-                        {result && (
-                          <div className="space-y-4">
-                            <div className="py-2 px-3 bg-green-50 text-green-700 rounded-md text-sm flex items-center gap-2">
-                              <Check className="h-4 w-4" />
-                              Analysis complete
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>Style Match</span>
-                                <span className="font-medium">95%</span>
-                              </div>
-                              <Progress value={95} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>Color Harmony</span>
-                                <span className="font-medium">88%</span>
-                              </div>
-                              <Progress value={88} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
-                            </div>
-                            
-                            <div className="space-y-2">
-                              <div className="flex justify-between text-sm">
-                                <span>Trend Alignment</span>
-                                <span className="font-medium">{result.trendReport.compatibility}%</span>
-                              </div>
-                              <Progress 
-                                value={result.trendReport.compatibility} 
-                                className="h-2 bg-skin-200" 
-                                indicatorClassName="bg-skin-600" 
-                              />
-                            </div>
-                          </div>
-                        )}
-                      </>
-                    )}
-                  </CardContent>
-                </Card>
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        <div className="lg:col-span-1">
+          <Card className="bg-white border-skin-100 sticky top-8">
+            <CardContent className="p-6 space-y-6">
+              <div className="flex justify-between items-center">
+                <h3 className="text-xl font-serif font-semibold">Upload Fashion Image</h3>
+                
+                {isAuthenticated && previousAnalyses.length > 0 && (
+                  <Button 
+                    variant="outline" 
+                    size="sm" 
+                    className="gap-1"
+                    onClick={() => setShowHistory(!showHistory)}
+                  >
+                    <History className="h-3.5 w-3.5" />
+                    History
+                  </Button>
+                )}
               </div>
               
-              <div className="lg:col-span-2">
-                {!result ? (
-                  <Card className="bg-white border-skin-100 h-full">
-                    <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full">
-                      <div className="bg-skin-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
-                        <Shirt className="h-8 w-8 text-skin-600" />
+              {showHistory ? (
+                renderPreviousAnalyses()
+              ) : (
+                <>
+                  {previewUrl ? (
+                    <div className="relative aspect-square w-full overflow-hidden rounded-lg mb-4">
+                      <img 
+                        src={previewUrl} 
+                        alt="Preview" 
+                        className="w-full h-full object-cover"
+                      />
+                      <button 
+                        className="absolute top-2 right-2 bg-white/80 p-1 rounded-full hover:bg-white"
+                        onClick={() => {
+                          setFile(null);
+                          setPreviewUrl(null);
+                          setResult(null);
+                        }}
+                      >
+                        <svg width="15" height="15" viewBox="0 0 15 15" fill="none" xmlns="http://www.w3.org/2000/svg">
+                          <path d="M11.7816 4.03157C12.0062 3.80702 12.0062 3.44295 11.7816 3.2184C11.5571 2.99385 11.193 2.99385 10.9685 3.2184L7.50005 6.68682L4.03164 3.2184C3.80708 2.99385 3.44301 2.99385 3.21846 3.2184C2.99391 3.44295 2.99391 3.80702 3.21846 4.03157L6.68688 7.49999L3.21846 10.9684C2.99391 11.193 2.99391 11.557 3.21846 11.7816C3.44301 12.0061 3.80708 12.0061 4.03164 11.7816L7.50005 8.31316L10.9685 11.7816C11.193 12.0061 11.5571 12.0061 11.7816 11.7816C12.0062 11.557 12.0062 11.193 11.7816 10.9684L8.31322 7.49999L11.7816 4.03157Z" fill="currentColor" fillRule="evenodd" clipRule="evenodd"></path>
+                        </svg>
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="border-2 border-dashed border-skin-200 rounded-lg p-8 text-center">
+                      <div className="flex justify-center mb-4">
+                        <Upload className="h-10 w-10 text-skin-400" />
                       </div>
-                      <h3 className="text-2xl font-serif font-semibold mb-3">ECO-Skin Fashion Analysis</h3>
-                      <p className="text-muted-foreground max-w-md mb-6">
-                        Upload an image of your outfit or clothing item to receive personalized fashion insights 
-                        including color analysis, style matching, trend detection, and outfit suggestions.
+                      <p className="text-sm text-muted-foreground mb-4">
+                        Upload a photo of your outfit or clothing item
                       </p>
-                      
-                      {isAuthenticated ? (
+                      <div className="flex justify-center gap-4">
                         <Button 
                           onClick={() => document.getElementById('file-upload')?.click()}
                           className="bg-skin-600 hover:bg-skin-700 gap-2"
                         >
                           <Upload className="h-4 w-4" />
-                          Upload Fashion Image
+                          Upload Image
                         </Button>
-                      ) : (
-                        <div className="p-4 bg-orange-50 text-orange-800 rounded-lg text-sm mb-4">
-                          <p>Please login to save your fashion analysis results.</p>
+                        <Button 
+                          variant="outline" 
+                          onClick={handleCameraCapture}
+                          className="gap-2"
+                        >
+                          <Camera className="h-4 w-4" />
+                          Use Camera
+                        </Button>
+                        <input 
+                          id="file-upload"
+                          type="file" 
+                          accept="image/*" 
+                          className="hidden" 
+                          onChange={handleFileChange}
+                        />
+                      </div>
+                    </div>
+                  )}
+                  
+                  {file && !isAnalyzing && !result && (
+                    <Button 
+                      className="w-full bg-skin-600 hover:bg-skin-700"
+                      onClick={handleAnalyze}
+                      disabled={!isAuthenticated}
+                    >
+                      {isAuthenticated ? "Analyze Fashion" : "Login to Analyze"}
+                    </Button>
+                  )}
+                  
+                  {isAnalyzing && (
+                    <div className="space-y-3">
+                      <div className="flex justify-between text-sm">
+                        <span>Analyzing your fashion...</span>
+                        <span className="font-medium">{progress}%</span>
+                      </div>
+                      <Progress 
+                        value={progress} 
+                        className="h-2 bg-skin-200" 
+                        indicatorClassName="bg-skin-600" 
+                      />
+                    </div>
+                  )}
+                  
+                  {result && (
+                    <div className="space-y-4">
+                      <div className="py-2 px-3 bg-green-50 text-green-700 rounded-md text-sm flex items-center gap-2">
+                        <Check className="h-4 w-4" />
+                        Analysis complete
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Style Match</span>
+                          <span className="font-medium">95%</span>
                         </div>
-                      )}
-                    </CardContent>
-                  </Card>
+                        <Progress value={95} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Color Harmony</span>
+                          <span className="font-medium">88%</span>
+                        </div>
+                        <Progress value={88} className="h-2 bg-skin-200" indicatorClassName="bg-skin-600" />
+                      </div>
+                      
+                      <div className="space-y-2">
+                        <div className="flex justify-between text-sm">
+                          <span>Trend Alignment</span>
+                          <span className="font-medium">{result.trendReport.compatibility}%</span>
+                        </div>
+                        <Progress 
+                          value={result.trendReport.compatibility} 
+                          className="h-2 bg-skin-200" 
+                          indicatorClassName="bg-skin-600" 
+                        />
+                      </div>
+                    </div>
+                  )}
+                </>
+              )}
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="lg:col-span-2">
+          {!result ? (
+            <Card className="bg-white border-skin-100 h-full">
+              <CardContent className="p-8 flex flex-col items-center justify-center text-center h-full">
+                <div className="bg-skin-100 w-16 h-16 rounded-full flex items-center justify-center mb-6">
+                  <Shirt className="h-8 w-8 text-skin-600" />
+                </div>
+                <h3 className="text-2xl font-serif font-semibold mb-3">ECO-Skin Fashion Analysis</h3>
+                <p className="text-muted-foreground max-w-md mb-6">
+                  Upload an image of your outfit or clothing item to receive personalized fashion insights 
+                  including color analysis, style matching, trend detection, and outfit suggestions.
+                </p>
+                
+                {isAuthenticated ? (
+                  <Button 
+                    onClick={() => document.getElementById('file-upload')?.click()}
+                    className="bg-skin-600 hover:bg-skin-700 gap-2"
+                  >
+                    <Upload className="h-4 w-4" />
+                    Upload Fashion Image
+                  </Button>
                 ) : (
-                  <Card className="bg-white border-skin-100">
-                    <CardContent className="p-6">
-                      {activeTab === 'color' && renderColorAnalysis()}
-                      {activeTab === 'style' && renderStyleMatching()}
-                      {activeTab === 'trend' && renderTrendDetection()}
-                      {activeTab === 'outfit' && renderOutfitGeneration()}
-                    </CardContent>
-                  </Card>
+                  <div className="p-4 bg-orange-50 text-orange-800 rounded-lg text-sm mb-4">
+                    <p>Please login to save your fashion analysis results.</p>
+                  </div>
                 )}
-              </div>
-            </div>
-          </div>
-        </SidebarInset>
+              </CardContent>
+            </Card>
+          ) : (
+            <Card className="bg-white border-skin-100">
+              <CardContent className="p-6">
+                {activeTab === 'color' && renderColorAnalysis()}
+                {activeTab === 'style' && renderStyleMatching()}
+                {activeTab === 'trend' && renderTrendDetection()}
+                {activeTab === 'outfit' && renderOutfitGeneration()}
+              </CardContent>
+            </Card>
+          )}
+        </div>
       </div>
-    </SidebarProvider>
+    </div>
   );
 };
 
