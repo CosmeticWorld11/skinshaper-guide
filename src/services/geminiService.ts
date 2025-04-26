@@ -61,11 +61,14 @@ export class GeminiService {
     
     if (!this.apiKey) {
       console.error("No API key available");
+      toast.error("No API key found. Please check the configuration.");
       return "Please set your Gemini API key in the settings to use the AI assistant.";
     }
     
     try {
       console.log("Generating response with Gemini API");
+      console.log("Using API key:", this.apiKey.substring(0, 5) + '...');
+      
       // Create prompt with context
       const fullPrompt = `You are a helpful beauty assistant AI for ECO-Skin.
             
@@ -101,11 +104,15 @@ Keep your answer concise (100 words maximum) and conversational.`;
         }
       );
 
+      console.log("Response status:", response.status);
+      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
+
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.text();
         console.error("Gemini API error:", errorData);
+        toast.error("Error connecting to Gemini AI. Please try again later.");
         
-        return "I'm having trouble connecting to my AI services right now. Please try asking a different question.";
+        return `I'm having trouble connecting to my AI services. Error details: ${response.status}`;
       }
 
       const data = await response.json() as GeminiResponse;
@@ -115,10 +122,12 @@ Keep your answer concise (100 words maximum) and conversational.`;
         return data.candidates[0].content.parts[0].text;
       } else {
         console.error("Empty or invalid response from Gemini API");
+        toast.warning("Unable to generate a response. Please try a different question.");
         return "I wasn't able to generate a response. Please try asking a different question.";
       }
     } catch (error) {
       console.error("Error calling Gemini API:", error);
+      toast.error("An unexpected error occurred while processing your request.");
       return "I encountered an error while processing your request. Please try again later.";
     }
   }
