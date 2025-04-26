@@ -77,9 +77,9 @@ Please provide a helpful, accurate, and friendly response. Focus on skincare, be
 If the question is not related to beauty, skincare, fashion, or our website features, politely redirect the conversation.
 Keep your answer concise (100 words maximum) and conversational.`;
 
-      // Call Gemini API
+      // Call Gemini API - Updated to the correct endpoint URL
       const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${this.apiKey}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=${this.apiKey}`,
         {
           method: "POST",
           headers: {
