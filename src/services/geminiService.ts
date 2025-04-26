@@ -17,7 +17,7 @@ type GeminiResponse = {
 };
 
 export class GeminiService {
-  private apiKey: string | null = null;
+  private apiKey: string;
   private static instance: GeminiService | null = null;
   
   constructor() {
@@ -34,41 +34,11 @@ export class GeminiService {
     return this.instance;
   }
 
-  setApiKey(key: string): void {
-    if (!key || key.trim() === "") {
-      console.error("Attempted to set empty API key");
-      return;
-    }
-    
-    this.apiKey = key.trim();
-    localStorage.setItem("gemini_api_key", this.apiKey);
-    console.log("API key set and saved to localStorage");
-    toast.success("API key saved successfully");
-  }
-
-  getApiKey(): string | null {
-    return this.apiKey;
-  }
-
-  clearApiKey(): void {
-    this.apiKey = null;
-    localStorage.removeItem("gemini_api_key");
-    console.log("API key cleared from service and localStorage");
-  }
-
   async generateResponse(prompt: string, context: string = ""): Promise<string> {
     console.log("generateResponse called with prompt:", prompt.substring(0, 20) + '...');
-    
-    if (!this.apiKey) {
-      console.error("No API key available");
-      toast.error("No API key found. Please check the configuration.");
-      return "Please set your Gemini API key in the settings to use the AI assistant.";
-    }
+    console.log("Using built-in API key");
     
     try {
-      console.log("Generating response with Gemini API");
-      console.log("Using API key:", this.apiKey.substring(0, 5) + '...');
-      
       // Create prompt with context
       const fullPrompt = `You are a helpful beauty assistant AI for ECO-Skin.
             
@@ -80,7 +50,6 @@ Please provide a helpful, accurate, and friendly response. Focus on skincare, be
 If the question is not related to beauty, skincare, fashion, or our website features, politely redirect the conversation.
 Keep your answer concise (100 words maximum) and conversational.`;
 
-      // Call Gemini API with updated API endpoint and model path
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`,
         {
@@ -104,15 +73,11 @@ Keep your answer concise (100 words maximum) and conversational.`;
         }
       );
 
-      console.log("Response status:", response.status);
-      console.log("Response headers:", Object.fromEntries(response.headers.entries()));
-
       if (!response.ok) {
         const errorData = await response.text();
         console.error("Gemini API error:", errorData);
         toast.error("Error connecting to Gemini AI. Please try again later.");
-        
-        return `I'm having trouble connecting to my AI services. Error details: ${response.status}`;
+        return "I'm having trouble connecting to my AI services right now. Please try asking a different question.";
       }
 
       const data = await response.json() as GeminiResponse;
@@ -135,3 +100,4 @@ Keep your answer concise (100 words maximum) and conversational.`;
 
 // Initialize and export the singleton instance
 export const geminiService = GeminiService.getInstance();
+
