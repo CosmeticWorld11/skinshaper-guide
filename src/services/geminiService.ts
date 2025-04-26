@@ -21,16 +21,9 @@ export class GeminiService {
   private static instance: GeminiService | null = null;
   
   constructor() {
-    // Initialize with API key for better user experience
-    this.apiKey = "AIzaSyCznpxXJOb4zPeU3aSxGFL3si7MtbbPYTs";
+    // Initialize with default API key
+    this.apiKey = "AIzaSyCTq20_yJ2ZLiYiBlCnRGuti5kMLO0GelA";
     console.log("GeminiService initialized with default API key");
-    
-    // Try to load from localStorage as fallback
-    const savedKey = localStorage.getItem("gemini_api_key");
-    if (savedKey && savedKey.trim() !== "") {
-      this.apiKey = savedKey;
-      console.log("Loaded API key from localStorage");
-    }
   }
   
   // Singleton pattern
@@ -48,9 +41,8 @@ export class GeminiService {
     }
     
     this.apiKey = key.trim();
-    // Store API key in local storage for persistence
     localStorage.setItem("gemini_api_key", this.apiKey);
-    console.log("API key set and saved to localStorage:", this.apiKey.substring(0, 5) + '...');
+    console.log("API key set and saved to localStorage");
     toast.success("API key saved successfully");
   }
 
@@ -85,7 +77,7 @@ Please provide a helpful, accurate, and friendly response. Focus on skincare, be
 If the question is not related to beauty, skincare, fashion, or our website features, politely redirect the conversation.
 Keep your answer concise (100 words maximum) and conversational.`;
 
-      // Call Gemini API with simplified request structure
+      // Call Gemini API
       const response = await fetch(
         `https://generativelanguage.googleapis.com/v1/models/gemini-pro:generateContent?key=${this.apiKey}`,
         {
