@@ -100,4 +100,3 @@ Keep your answer concise (100 words maximum) and conversational.`;
 
 // Initialize and export the singleton instance
 export const geminiService = GeminiService.getInstance();
-
