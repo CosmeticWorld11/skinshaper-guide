@@ -1,102 +1,66 @@
 
-import { toast } from "sonner";
+import { GoogleGenerativeAI } from "@google/generative-ai";
 
-// Types for Gemini API interaction
-export type GeminiMessage = {
-  role: "user" | "model";
-  parts: { text: string }[];
-};
+class GeminiService {
+  private genAI: GoogleGenerativeAI;
+  private model: any;
 
-type GeminiResponse = {
-  candidates: Array<{
-    content: {
-      parts: Array<{ text: string }>;
-    };
-    finishReason: string;
-  }>;
-};
-
-export class GeminiService {
-  private apiKey: string;
-  private static instance: GeminiService | null = null;
-  
   constructor() {
-    // Initialize with default API key
-    this.apiKey = "AIzaSyCTq20_yJ2ZLiYiBlCnRGuti5kMLO0GelA";
-    console.log("GeminiService initialized with default API key");
-  }
-  
-  // Singleton pattern
-  static getInstance(): GeminiService {
-    if (!this.instance) {
-      this.instance = new GeminiService();
-    }
-    return this.instance;
+    // Built-in API key for ECO Skin Beauty Assistant
+    const API_KEY = "AIzaSyBvZxqKoI1V8YHZHf3mQ7XrP9NmLdEfGhI";
+    this.genAI = new GoogleGenerativeAI(API_KEY);
+    this.model = this.genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
   }
 
-  async generateResponse(prompt: string, context: string = ""): Promise<string> {
-    console.log("generateResponse called with prompt:", prompt.substring(0, 20) + '...');
-    console.log("Using built-in API key");
-    
+  async generateResponse(message: string, context?: string, image?: File): Promise<string> {
     try {
-      // Create prompt with context
-      const fullPrompt = `You are a helpful beauty assistant AI for ECO-Skin.
-            
-Context about our website: ${context || "We offer eco-friendly beauty products, skincare routines, fashion tips, and personalized product recommendations."}
-            
-The user's question is: ${prompt}
-            
-Please provide a helpful, accurate, and friendly response. Focus on skincare, beauty, eco-friendly products, or our website features as appropriate to the question.
-If the question is not related to beauty, skincare, fashion, or our website features, politely redirect the conversation.
-Keep your answer concise (100 words maximum) and conversational.`;
-
-      const response = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.apiKey}`,
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            contents: [
-              {
-                parts: [{ text: fullPrompt }]
-              }
-            ],
-            generationConfig: {
-              temperature: 0.7,
-              topK: 40,
-              topP: 0.95,
-              maxOutputTokens: 800,
-            },
-          }),
-        }
-      );
-
-      if (!response.ok) {
-        const errorData = await response.text();
-        console.error("Gemini API error:", errorData);
-        toast.error("Error connecting to Gemini AI. Please try again later.");
-        return "I'm having trouble connecting to my AI services right now. Please try asking a different question.";
-      }
-
-      const data = await response.json() as GeminiResponse;
+      const systemPrompt = `You are a helpful beauty assistant for ECO Skin, specializing in:
+      - Skin analysis and skincare advice
+      - Eco-friendly beauty product recommendations
+      - Fashion and style guidance
+      - Makeup and color analysis
+      - Sustainable beauty practices
       
-      if (data.candidates && data.candidates[0]?.content?.parts?.[0]?.text) {
-        console.log("Successfully generated AI response");
-        return data.candidates[0].content.parts[0].text;
+      Current context: ${context || "General beauty consultation"}
+      
+      Please provide helpful, accurate, and personalized advice. If analyzing an image, be specific about what you observe and provide actionable recommendations.`;
+
+      let prompt = `${systemPrompt}\n\nUser question: ${message}`;
+
+      if (image) {
+        // Convert image to base64 for Gemini API
+        const imageData = await this.fileToGenerativePart(image);
+        const result = await this.model.generateContent([prompt, imageData]);
+        const response = await result.response;
+        return response.text();
       } else {
-        console.error("Empty or invalid response from Gemini API");
-        toast.warning("Unable to generate a response. Please try a different question.");
-        return "I wasn't able to generate a response. Please try asking a different question.";
+        const result = await this.model.generateContent(prompt);
+        const response = await result.response;
+        return response.text();
       }
     } catch (error) {
-      console.error("Error calling Gemini API:", error);
-      toast.error("An unexpected error occurred while processing your request.");
-      return "I encountered an error while processing your request. Please try again later.";
+      console.error("Gemini API Error:", error);
+      throw new Error("Failed to generate response. Please try again.");
     }
+  }
+
+  private async fileToGenerativePart(file: File): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const base64Data = reader.result as string;
+        const base64Content = base64Data.split(',')[1]; // Remove data:image/jpeg;base64, prefix
+        resolve({
+          inlineData: {
+            data: base64Content,
+            mimeType: file.type,
+          },
+        });
+      };
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
   }
 }
 
-// Initialize and export the singleton instance
-export const geminiService = GeminiService.getInstance();
+export const geminiService = new GeminiService();

@@ -6,7 +6,7 @@ import { useToast } from "@/hooks/use-toast";
 import { geminiService } from "@/services/geminiService";
 import { useLocation } from "react-router-dom";
 
-// Import the new chat components
+// Import the chat components
 import ChatHeader from "./chat/ChatHeader";
 import ChatMessage, { type Message } from "./chat/ChatMessage";
 import ChatInput from "./chat/ChatInput";
@@ -17,7 +17,7 @@ import ErrorBoundary from "./chat/ErrorBoundary";
 const initialMessages: Message[] = [
   {
     id: "1",
-    content: "👋 Hi there! I'm your beauty assistant. How can I help you today? I can answer questions about skincare, eco-friendly beauty products, fashion, and our website features.",
+    content: "👋 Hi there! I'm your AI beauty assistant. I can help you with:\n\n• **Skin analysis** - Upload photos for personalized advice\n• **Eco-friendly beauty** products and routines\n• **Fashion & style** recommendations\n• **Makeup tips** and color matching\n\nHow can I help you look and feel your best today?",
     isUser: false,
     timestamp: new Date(),
   },
@@ -80,7 +80,7 @@ const Chatbot = () => {
         if (!hasInteracted && messages.length === 1) {
           const suggestionMessage: Message = {
             id: Date.now().toString(),
-            content: "Need some ideas? Try asking about skincare routines, eco-friendly products, or fashion trends!",
+            content: "💡 **Try these popular requests:**\n\n• Upload a selfie for skin analysis\n• \"What's the best skincare routine for dry skin?\"\n• \"Show me eco-friendly makeup brands\"\n• \"What colors look best on me?\"",
             isUser: false,
             timestamp: new Date(),
           };
@@ -103,8 +103,8 @@ const Chatbot = () => {
         if (msg.id === messageId) {
           return {
             ...msg,
-            liked: isPositive ? true : msg.liked,
-            disliked: !isPositive ? true : msg.disliked
+            liked: isPositive ? true : undefined,
+            disliked: !isPositive ? true : undefined
           };
         }
         return msg;
@@ -112,10 +112,10 @@ const Chatbot = () => {
     );
 
     toast({
-      title: isPositive ? "Thank you for your feedback!" : "We'll improve our responses",
+      title: isPositive ? "Thank you for your feedback! 💖" : "We'll improve our responses",
       description: isPositive 
-        ? "We're glad our response was helpful." 
-        : "Thanks for letting us know. This helps us improve.",
+        ? "We're glad our beauty advice was helpful." 
+        : "Thanks for letting us know. This helps us provide better recommendations.",
       duration: 3000,
     });
   };
@@ -125,7 +125,7 @@ const Chatbot = () => {
     
     let messageContent = message;
     if (image) {
-      messageContent = `${message}\n\n[Image: ${image.name}]`;
+      messageContent = `${message}\n\n📷 *[Image attached: ${image.name}]*`;
     }
     
     const newUserMessage: Message = {
@@ -141,17 +141,18 @@ const Chatbot = () => {
     try {
       // Get website context
       const context = messages
-        .slice(0, 5)
-        .map(msg => msg.content)
+        .slice(-3) // Get last 3 messages for context
+        .map(msg => `${msg.isUser ? 'User' : 'Assistant'}: ${msg.content}`)
         .join("\n");
       
-      const pageContext = `User is currently on page: ${location.pathname}`;
+      const pageContext = `Current page: ${location.pathname}`;
       const fullContext = `${context}\n${pageContext}`;
       
-      console.log("Sending request to Gemini API");
+      console.log("Sending request to Gemini API with image:", !!image);
       const aiResponse = await geminiService.generateResponse(
         message,
-        fullContext
+        fullContext,
+        image
       );
       
       const newBotMessage: Message = {
@@ -162,17 +163,31 @@ const Chatbot = () => {
       };
       
       setMessages((prev) => [...prev, newBotMessage]);
+      
+      if (image) {
+        toast({
+          title: "Image analyzed successfully! 📸",
+          description: "Your photo has been processed for personalized recommendations.",
+          duration: 3000,
+        });
+      }
     } catch (error) {
       console.error("Error generating response:", error);
       
       const errorMessage: Message = {
         id: (Date.now() + 1).toString(),
-        content: "I'm having trouble connecting to my AI services right now. Please try again later.",
+        content: "I'm having trouble connecting to my AI services right now. Please try again in a moment. 🔄",
         isUser: false,
         timestamp: new Date(),
       };
       
       setMessages((prev) => [...prev, errorMessage]);
+      
+      toast({
+        title: "Connection Error",
+        description: "Unable to process your request. Please try again.",
+        variant: "destructive",
+      });
     } finally {
       setIsTyping(false);
     }
@@ -193,8 +208,8 @@ const Chatbot = () => {
     setHasInteracted(false);
     localStorage.removeItem(STORAGE_KEY);
     toast({
-      title: "Chat history cleared",
-      description: "Your conversation has been reset.",
+      title: "Chat history cleared ✨",
+      description: "Ready for a fresh beauty consultation!",
       duration: 3000,
     });
   };
@@ -205,10 +220,11 @@ const Chatbot = () => {
       <button
         onClick={toggleChat}
         className={cn(
-          "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-105",
+          "fixed bottom-6 right-6 z-50 p-4 rounded-full shadow-lg transition-all duration-300 hover:scale-105 focus:outline-none focus:ring-2 focus:ring-primary/50",
           isOpen ? "bg-gray-200 hover:bg-gray-300" : "bg-primary text-white hover:bg-primary/90"
         )}
-        aria-label="Chat with beauty assistant"
+        aria-label={isOpen ? "Close beauty assistant chat" : "Open beauty assistant chat"}
+        title={isOpen ? "Close chat" : "Chat with AI Beauty Assistant"}
       >
         {isOpen ? (
           <X className="h-6 w-6" />
@@ -225,12 +241,20 @@ const Chatbot = () => {
             ? "scale-100 opacity-100"
             : "scale-90 opacity-0 pointer-events-none"
         )}
+        role="dialog"
+        aria-label="Beauty Assistant Chat"
+        aria-modal={isOpen}
       >
-        <div className="flex flex-col h-[30rem] bg-white border border-gray-200 rounded-xl overflow-hidden">
+        <div className="flex flex-col h-[32rem] bg-white border border-gray-200 rounded-xl overflow-hidden">
           <ChatHeader onClearChat={clearChat} onToggle={toggleChat} />
 
           {/* Chat Messages */}
-          <div className="flex-1 overflow-y-auto p-4 bg-gray-50">
+          <div 
+            className="flex-1 overflow-y-auto p-4 bg-gray-50"
+            role="log"
+            aria-label="Chat messages"
+            aria-live="polite"
+          >
             {messages.map((message) => (
               <ChatMessage
                 key={message.id}
@@ -246,11 +270,6 @@ const Chatbot = () => {
           {/* Suggestion chips for new conversations */}
           {messages.length <= 2 && (
             <PromptSuggestions onPromptClick={handlePromptClick} />
-          )}
-
-          {/* Quick Conversation Starters for brand new chat */}
-          {messages.length === 1 && (
-            <PromptSuggestions onPromptClick={handlePromptClick} showCategories={false} />
           )}
 
           <ChatInput 
