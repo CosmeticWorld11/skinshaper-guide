@@ -1,9 +1,9 @@
-
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Send, Image, Upload, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
+import VoiceInput from "./VoiceInput";
 
 interface ChatInputProps {
   onSendMessage: (message: string, image?: File) => void;
@@ -37,6 +37,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     if (e.key === "Enter" && !e.shiftKey) {
       e.preventDefault();
       handleSend();
+    }
+  };
+
+  const handleVoiceTranscript = (transcript: string) => {
+    setInputValue(prev => prev + (prev ? " " : "") + transcript);
+    if (inputRef.current) {
+      inputRef.current.focus();
     }
   };
 
@@ -142,6 +149,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         >
           <Upload className="h-5 w-5" />
         </button>
+        
+        <VoiceInput 
+          onTranscript={handleVoiceTranscript}
+          disabled={disabled}
+        />
+        
         <input
           type="text"
           value={inputValue}
@@ -170,7 +183,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
       </div>
       
       <div className="mt-2 text-xs text-gray-500 text-center">
-        Upload photos for skin analysis, style advice, or product recommendations
+        Upload photos, use voice input, or type for personalized beauty advice
       </div>
     </div>
   );
