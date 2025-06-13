@@ -1,100 +1,112 @@
 
-const CACHE_NAME = 'eco-skin-v2';
-const STATIC_CACHE = 'eco-skin-static-v2';
-const DYNAMIC_CACHE = 'eco-skin-dynamic-v2';
-
+const CACHE_NAME = 'eco-skin-v1';
 const urlsToCache = [
   '/',
   '/static/js/bundle.js',
   '/static/css/main.css',
-  '/favicon.ico',
-  '/og-image.png',
-  '/manifest.json'
+  '/favicon.ico'
 ];
 
-// Install event - Cache static assets
+// Install event - cache resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches.open(STATIC_CACHE)
-      .then((cache) => {
-        console.log('Opened static cache');
-        return cache.addAll(urlsToCache);
-      })
-      .then(() => self.skipWaiting())
+    caches.open(CACHE_NAME)
+      .then((cache) => cache.addAll(urlsToCache))
   );
 });
 
-// Activate event - Clean up old caches
-self.addEventListener('activate', (event) => {
-  event.waitUntil(
-    caches.keys().then((cacheNames) => {
-      return Promise.all(
-        cacheNames.map((cacheName) => {
-          if (cacheName !== STATIC_CACHE && cacheName !== DYNAMIC_CACHE) {
-            console.log('Deleting old cache:', cacheName);
-            return caches.delete(cacheName);
-          }
-        })
-      );
-    }).then(() => self.clients.claim())
-  );
-});
-
-// Fetch event - Network first for API calls, Cache first for static assets
+// Fetch event - serve from cache when offline
 self.addEventListener('fetch', (event) => {
-  const { request } = event;
-  
-  // Skip non-GET requests
-  if (request.method !== 'GET') return;
-  
-  // API calls - Network first
-  if (request.url.includes('/api/') || request.url.includes('generativelanguage.googleapis.com')) {
-    event.respondWith(
-      fetch(request)
-        .then(response => {
-          const responseClone = response.clone();
-          caches.open(DYNAMIC_CACHE)
-            .then(cache => cache.put(request, responseClone));
-          return response;
-        })
-        .catch(() => caches.match(request))
-    );
-    return;
-  }
-  
-  // Static assets - Cache first
   event.respondWith(
-    caches.match(request)
-      .then((cachedResponse) => {
-        if (cachedResponse) {
-          return cachedResponse;
-        }
-        
-        return fetch(request)
-          .then(response => {
-            // Don't cache non-successful responses
-            if (!response || response.status !== 200 || response.type !== 'basic') {
-              return response;
-            }
-            
-            const responseToCache = response.clone();
-            caches.open(DYNAMIC_CACHE)
-              .then(cache => cache.put(request, responseToCache));
-            
-            return response;
-          });
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        return response || fetch(event.request);
       })
   );
 });
 
-// Background sync for offline message queue
-self.addEventListener('sync', (event) => {
-  if (event.tag === 'chat-messages') {
-    event.waitUntil(syncOfflineMessages());
+// Handle notification clicks
+self.addEventListener('notificationclick', (event) => {
+  event.notification.close();
+  
+  const { action, data } = event;
+  const notificationData = event.notification.data || {};
+  
+  switch (action) {
+    case 'complete':
+      if (notificationData.type === 'routine') {
+        // Mark routine as complete
+        console.log('Routine marked as complete:', notificationData.routineName);
+      }
+      break;
+      
+    case 'snooze':
+      if (notificationData.type === 'routine') {
+        // Reschedule notification for 15 minutes later
+        const snoozeTime = new Date(Date.now() + 15 * 60 * 1000);
+        self.registration.showNotification(event.notification.title, {
+          ...event.notification,
+          timestamp: snoozeTime.getTime()
+        });
+      }
+      break;
+      
+    case 'view':
+      if (notificationData.type === 'product') {
+        // Open recommendations page
+        event.waitUntil(
+          clients.openWindow('/recommendations')
+        );
+      }
+      break;
+      
+    case 'dismiss':
+      // Just close the notification
+      break;
+      
+    case 'confirm':
+      if (notificationData.type === 'appointment') {
+        console.log('Appointment confirmed:', notificationData.appointmentType);
+      }
+      break;
+      
+    case 'reschedule':
+      if (notificationData.type === 'appointment') {
+        // Open calendar/scheduling page
+        event.waitUntil(
+          clients.openWindow('/custom-planner')
+        );
+      }
+      break;
+      
+    default:
+      // Default action - open the app
+      event.waitUntil(
+        clients.openWindow('/')
+      );
+      break;
   }
 });
 
-async function syncOfflineMessages() {
-  // Implementation for syncing offline messages when back online
-  console.log('Syncing offline messages...');
+// Handle push notifications (for future server-sent notifications)
+self.addEventListener('push', (event) => {
+  if (event.data) {
+    const options = event.data.json();
+    event.waitUntil(
+      self.registration.showNotification(options.title, options)
+    );
+  }
+});
+
+// Background sync for offline actions
+self.addEventListener('sync', (event) => {
+  if (event.tag === 'background-sync') {
+    event.waitUntil(doBackgroundSync());
+  }
+});
+
+function doBackgroundSync() {
+  // Handle any queued actions when coming back online
+  return Promise.resolve();
 }
