@@ -15,6 +15,8 @@ import SkincareRoutinePlanner from "./pages/SkincareRoutinePlanner";
 import CustomRoutinePlanner from "./pages/CustomRoutinePlanner";
 import FashionAnalysis from "./pages/FashionAnalysis";
 import Auth from "./pages/Auth";
+import About from "./pages/About";
+import Help from "./pages/Help";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AnalysisTool from "./components/AnalysisTool";
@@ -34,6 +36,8 @@ const AppContent = () => {
         <Route path="/recommendations" element={<RecommendationsPage />} />
         <Route path="/skincare-planner" element={<SkincareRoutinePlanner />} />
         <Route path="/auth" element={<Auth />} />
+        <Route path="/about" element={<About />} />
+        <Route path="/help" element={<Help />} />
         <Route path="/custom-planner" element={
           <ProtectedRoute>
             <CustomRoutinePlanner />
@@ -41,7 +45,6 @@ const AppContent = () => {
         } />
         <Route path="/fashion" element={<FashionAnalysis />} />
         <Route path="/analysis" element={<AnalysisTool />} />
-        <Route path="/about" element={<Index />} />
         {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
         <Route path="*" element={<NotFound />} />
       </Routes>
