@@ -1,3 +1,4 @@
+
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
@@ -17,8 +18,38 @@ import Auth from "./pages/Auth";
 import { AuthProvider } from "./contexts/AuthContext";
 import ProtectedRoute from "./components/ProtectedRoute";
 import AnalysisTool from "./components/AnalysisTool";
+import { useNotificationInit } from "./hooks/useNotificationInit";
 
 const queryClient = new QueryClient();
+
+const AppContent = () => {
+  useNotificationInit();
+  
+  return (
+    <>
+      <Routes>
+        <Route path="/" element={<Index />} />
+        <Route path="/blog" element={<Blog />} />
+        <Route path="/eco-beauty-guide" element={<EcoBeautyGuide />} />
+        <Route path="/recommendations" element={<RecommendationsPage />} />
+        <Route path="/skincare-planner" element={<SkincareRoutinePlanner />} />
+        <Route path="/auth" element={<Auth />} />
+        <Route path="/custom-planner" element={
+          <ProtectedRoute>
+            <CustomRoutinePlanner />
+          </ProtectedRoute>
+        } />
+        <Route path="/fashion" element={<FashionAnalysis />} />
+        <Route path="/analysis" element={<AnalysisTool />} />
+        <Route path="/about" element={<Index />} />
+        {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+      <Chatbot />
+      <UserPreferencesPanel />
+    </>
+  );
+};
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
@@ -27,26 +58,7 @@ const App = () => (
         <Toaster />
         <Sonner />
         <BrowserRouter>
-          <Routes>
-            <Route path="/" element={<Index />} />
-            <Route path="/blog" element={<Blog />} />
-            <Route path="/eco-beauty-guide" element={<EcoBeautyGuide />} />
-            <Route path="/recommendations" element={<RecommendationsPage />} />
-            <Route path="/skincare-planner" element={<SkincareRoutinePlanner />} />
-            <Route path="/auth" element={<Auth />} />
-            <Route path="/custom-planner" element={
-              <ProtectedRoute>
-                <CustomRoutinePlanner />
-              </ProtectedRoute>
-            } />
-            <Route path="/fashion" element={<FashionAnalysis />} />
-            <Route path="/analysis" element={<AnalysisTool />} />
-            <Route path="/about" element={<Index />} />
-            {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-            <Route path="*" element={<NotFound />} />
-          </Routes>
-          <Chatbot />
-          <UserPreferencesPanel />
+          <AppContent />
         </BrowserRouter>
       </TooltipProvider>
     </AuthProvider>
