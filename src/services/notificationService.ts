@@ -16,6 +16,11 @@ export interface NotificationOptions {
   data?: any;
 }
 
+// Service Worker specific notification options
+interface ServiceWorkerNotificationOptions extends NotificationOptions {
+  actions: NotificationAction[];
+}
+
 export interface ScheduledNotification {
   id: string;
   type: 'routine' | 'product' | 'reminder';
@@ -65,15 +70,18 @@ class NotificationService {
       
       if (registration) {
         // Use service worker notification with actions support
-        await registration.showNotification(options.title, {
+        const swOptions: ServiceWorkerNotificationOptions = {
           body: options.body,
           icon: options.icon || '/favicon.ico',
           badge: options.badge || '/favicon.ico',
           tag: options.tag,
           requireInteraction: options.requireInteraction || false,
           actions: options.actions || [],
-          data: options.data
-        });
+          data: options.data,
+          title: options.title
+        };
+        
+        await registration.showNotification(options.title, swOptions);
       } else {
         // Fallback to regular notification (no actions support)
         new Notification(options.title, {
