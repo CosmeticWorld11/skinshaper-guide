@@ -18,7 +18,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
 
   useEffect(() => {
     // Check if speech recognition is supported
-    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    const SpeechRecognition = (window as any).SpeechRecognition || (window as any).webkitSpeechRecognition;
     
     if (SpeechRecognition) {
       setIsSupported(true);
@@ -36,7 +36,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
         setIsListening(false);
       };
       
-      recognitionInstance.onresult = (event) => {
+      recognitionInstance.onresult = (event: SpeechRecognitionEvent) => {
         const transcript = event.results[0][0].transcript;
         onTranscript(transcript);
         toast({
@@ -46,7 +46,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
         });
       };
       
-      recognitionInstance.onerror = (event) => {
+      recognitionInstance.onerror = (event: SpeechRecognitionErrorEvent) => {
         console.error('Speech recognition error:', event.error);
         setIsListening(false);
         
@@ -61,6 +61,11 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
           case 'network':
             errorMessage = 'Network error occurred during voice recognition.';
             break;
+          case 'not-allowed':
+            errorMessage = 'Microphone permission denied. Please allow microphone access.';
+            break;
+          default:
+            errorMessage = `Speech recognition error: ${event.error}`;
         }
         
         toast({
@@ -75,7 +80,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
   }, [onTranscript, toast]);
 
   const startListening = () => {
-    if (recognition && !isListening) {
+    if (recognition && !isListening && !disabled) {
       try {
         recognition.start();
       } catch (error) {
@@ -91,7 +96,11 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
 
   const stopListening = () => {
     if (recognition && isListening) {
-      recognition.stop();
+      try {
+        recognition.stop();
+      } catch (error) {
+        console.error('Error stopping recognition:', error);
+      }
     }
   };
 
@@ -107,6 +116,7 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
       disabled={disabled}
       className={cn(
         "p-1 transition-all duration-200",
+        disabled && "opacity-50 cursor-not-allowed",
         isListening 
           ? "bg-red-100 text-red-600 hover:bg-red-200 animate-pulse" 
           : "text-gray-500 hover:text-primary hover:bg-primary/10"

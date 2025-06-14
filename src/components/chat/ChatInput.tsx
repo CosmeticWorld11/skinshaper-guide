@@ -1,6 +1,7 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Send, Image, Upload, X } from "lucide-react";
+import { Send, Image, Upload, X, Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import VoiceInput from "./VoiceInput";
@@ -14,6 +15,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
   const [inputValue, setInputValue] = useState("");
   const [selectedImage, setSelectedImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
+  const [isProcessing, setIsProcessing] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
@@ -24,13 +26,31 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     }
   }, [disabled]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     if (inputValue.trim() === "" && !selectedImage) return;
     
-    onSendMessage(inputValue.trim() || "Please analyze this image", selectedImage || undefined);
-    setInputValue("");
-    setSelectedImage(null);
-    setImagePreview(null);
+    setIsProcessing(true);
+    
+    try {
+      await onSendMessage(inputValue.trim() || "Please analyze this image", selectedImage || undefined);
+      setInputValue("");
+      setSelectedImage(null);
+      setImagePreview(null);
+      
+      // Clear file input
+      if (fileInputRef.current) {
+        fileInputRef.current.value = '';
+      }
+    } catch (error) {
+      console.error('Error sending message:', error);
+      toast({
+        title: "Message failed to send",
+        description: "Please try again in a moment.",
+        variant: "destructive",
+      });
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
   const handleKeyPress = (e: React.KeyboardEvent) => {
@@ -45,6 +65,12 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     if (inputRef.current) {
       inputRef.current.focus();
     }
+    
+    toast({
+      title: "Voice input captured! 🎤",
+      description: "Your speech has been converted to text.",
+      duration: 2000,
+    });
   };
 
   const handleImageSelect = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -80,7 +106,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
       reader.readAsDataURL(file);
 
       toast({
-        title: "Image selected",
+        title: "Image selected ✨",
         description: `${file.name} ready for analysis`,
       });
     }
@@ -92,18 +118,28 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
     if (fileInputRef.current) {
       fileInputRef.current.value = '';
     }
+    
+    toast({
+      title: "Image removed",
+      description: "Image has been deselected",
+      duration: 2000,
+    });
   };
+
+  const isInputDisabled = disabled || isProcessing;
+  const canSend = !isInputDisabled && (inputValue.trim() !== "" || selectedImage);
 
   return (
     <div className="p-3 bg-white border-t border-gray-200">
       {selectedImage && imagePreview && (
-        <div className="mb-3 p-3 bg-gray-50 rounded-lg">
+        <div className="mb-3 p-3 bg-gray-50 rounded-lg border border-gray-200">
           <div className="flex items-start justify-between mb-2">
             <span className="text-sm font-medium text-gray-700">Selected Image:</span>
             <Button
               variant="ghost"
               size="sm"
               onClick={removeImage}
+              disabled={isProcessing}
               className="h-6 w-6 p-0 hover:bg-red-100"
               aria-label="Remove selected image"
             >
@@ -126,7 +162,11 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         </div>
       )}
       
-      <div className="flex items-center rounded-full bg-gray-100 px-3 py-1 focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-white transition-all">
+      <div className={cn(
+        "flex items-center rounded-full bg-gray-100 px-3 py-1 transition-all",
+        "focus-within:ring-2 focus-within:ring-primary/30 focus-within:bg-white",
+        isProcessing && "opacity-75"
+      )}>
         <input
           type="file"
           ref={fileInputRef}
@@ -135,12 +175,13 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
           className="hidden"
           aria-label="Upload image for analysis"
         />
+        
         <button 
           onClick={() => fileInputRef.current?.click()}
-          disabled={disabled}
+          disabled={isInputDisabled}
           className={cn(
             "p-1 transition-colors rounded-full",
-            disabled 
+            isInputDisabled 
               ? "text-gray-400 cursor-not-allowed" 
               : "text-gray-500 hover:text-primary hover:bg-primary/10"
           )}
@@ -152,7 +193,7 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
         
         <VoiceInput 
           onTranscript={handleVoiceTranscript}
-          disabled={disabled}
+          disabled={isInputDisabled}
         />
         
         <input
@@ -161,29 +202,37 @@ const ChatInput: React.FC<ChatInputProps> = ({ onSendMessage, disabled = false }
           onChange={(e) => setInputValue(e.target.value)}
           onKeyDown={handleKeyPress}
           placeholder={selectedImage ? "Ask about your image..." : "Ask about skincare, beauty, or fashion..."}
-          className="flex-1 bg-transparent py-2 px-2 outline-none text-sm text-foreground"
+          className="flex-1 bg-transparent py-2 px-2 outline-none text-sm text-foreground placeholder:text-gray-500"
           ref={inputRef}
-          disabled={disabled}
+          disabled={isInputDisabled}
           aria-label="Type your beauty question"
         />
+        
         <button
           onClick={handleSend}
-          disabled={disabled || (inputValue.trim() === "" && !selectedImage)}
+          disabled={!canSend}
           className={cn(
-            "p-1 rounded-full transition-colors",
-            disabled || (inputValue.trim() === "" && !selectedImage)
+            "p-1 rounded-full transition-colors min-w-[32px] min-h-[32px] flex items-center justify-center",
+            !canSend
               ? "text-gray-400 cursor-not-allowed"
               : "text-primary hover:bg-primary/10"
           )}
           aria-label={selectedImage ? "Send image for analysis" : "Send message"}
           title={selectedImage ? "Send image for analysis" : "Send message"}
         >
-          <Send className="h-5 w-5" />
+          {isProcessing ? (
+            <Loader2 className="h-5 w-5 animate-spin" />
+          ) : (
+            <Send className="h-5 w-5" />
+          )}
         </button>
       </div>
       
       <div className="mt-2 text-xs text-gray-500 text-center">
-        Upload photos, use voice input, or type for personalized beauty advice
+        {isProcessing 
+          ? "Processing your request..." 
+          : "Upload photos, use voice input, or type for personalized beauty advice"
+        }
       </div>
     </div>
   );

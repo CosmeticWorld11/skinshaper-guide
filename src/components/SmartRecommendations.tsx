@@ -1,9 +1,10 @@
 
 import React, { useState, useEffect } from 'react';
-import { Sparkles, RefreshCw, Filter } from 'lucide-react';
+import { Sparkles, RefreshCw, Filter, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { recommendationEngine, ProductRecommendation, RoutineRecommendation } from '@/services/recommendationEngine';
 import RecommendationCard from './RecommendationCard';
 import RoutineCard from './RoutineCard';
@@ -12,6 +13,7 @@ const SmartRecommendations: React.FC = () => {
   const [productRecommendations, setProductRecommendations] = useState<ProductRecommendation[]>([]);
   const [routineRecommendations, setRoutineRecommendations] = useState<RoutineRecommendation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [categoryFilter, setCategoryFilter] = useState<string>('all');
 
   useEffect(() => {
@@ -20,6 +22,8 @@ const SmartRecommendations: React.FC = () => {
 
   const loadRecommendations = async () => {
     setIsLoading(true);
+    setError(null);
+    
     try {
       // Simulate API delay for better UX
       await new Promise(resolve => setTimeout(resolve, 1000));
@@ -29,19 +33,41 @@ const SmartRecommendations: React.FC = () => {
       
       setProductRecommendations(products);
       setRoutineRecommendations(routines);
+    } catch (err) {
+      console.error('Error loading recommendations:', err);
+      setError('Failed to load recommendations. Please try again.');
     } finally {
       setIsLoading(false);
     }
   };
 
   const handleWishlistAdd = (productId: string) => {
-    // In a real app, this would save to user's wishlist
-    console.log('Added to wishlist:', productId);
+    try {
+      // In a real app, this would save to user's wishlist
+      console.log('Added to wishlist:', productId);
+    } catch (error) {
+      console.error('Error adding to wishlist:', error);
+    }
   };
 
   const filteredProducts = categoryFilter === 'all' 
     ? productRecommendations 
     : productRecommendations.filter(p => p.category === categoryFilter);
+
+  if (error) {
+    return (
+      <div className="space-y-6">
+        <Alert variant="destructive">
+          <AlertCircle className="h-4 w-4" />
+          <AlertDescription>{error}</AlertDescription>
+        </Alert>
+        <Button onClick={loadRecommendations} variant="outline">
+          <RefreshCw className="h-4 w-4 mr-2" />
+          Try Again
+        </Button>
+      </div>
+    );
+  }
 
   if (isLoading) {
     return (
@@ -67,8 +93,8 @@ const SmartRecommendations: React.FC = () => {
             Personalized suggestions based on your preferences and skin profile
           </p>
         </div>
-        <Button onClick={loadRecommendations} variant="outline" size="sm">
-          <RefreshCw className="h-4 w-4 mr-2" />
+        <Button onClick={loadRecommendations} variant="outline" size="sm" disabled={isLoading}>
+          <RefreshCw className={`h-4 w-4 mr-2 ${isLoading ? 'animate-spin' : ''}`} />
           Refresh
         </Button>
       </div>
