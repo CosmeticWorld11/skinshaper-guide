@@ -36,7 +36,7 @@ const AppContent = () => {
   useNotificationInit();
   
   return (
-    <>
+    <BrowserRouter>
       <Routes>
         <Route path="/" element={<Index />} />
         <Route path="/blog" element={<Blog />} />
@@ -59,22 +59,20 @@ const AppContent = () => {
       </Routes>
       <Chatbot />
       <UserPreferencesPanel />
-    </>
+    </BrowserRouter>
   );
 };
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <AuthProvider>
-      <TooltipProvider>
+  <TooltipProvider>
+    <QueryClientProvider client={queryClient}>
+      <AuthProvider>
         <Toaster />
         <Sonner />
-        <BrowserRouter>
-          <AppContent />
-        </BrowserRouter>
-      </TooltipProvider>
-    </AuthProvider>
-  </QueryClientProvider>
+        <AppContent />
+      </AuthProvider>
+    </QueryClientProvider>
+  </TooltipProvider>
 );
 
 export default App;
