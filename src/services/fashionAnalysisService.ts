@@ -130,9 +130,16 @@ export class FashionAnalysisService {
 
       // --- 1. Run image classification to guess styles ---
       toast.info("Detecting fashion style & tags with AI...");
-      const classifier = await pipeline('image-classification', 'onnx-community/mobilenetv4_conv_small.e2400_r224_in1k', { device: 'webgpu' });
-      const tags = await classifier(imageData, { topk: 5 });
-      // tags is an array: [{label, score}, ...]
+      // FIX: use top_k
+      const classifier = await pipeline(
+        'image-classification',
+        'onnx-community/mobilenetv4_conv_small.e2400_r224_in1k',
+        { device: 'webgpu' }
+      );
+      // For the transformers.js pipeline, top_k is the correct property!
+      const tagsResult = await classifier(imageData, { top_k: 5 });
+      // tagsResult can be { label, score }[] or a nested type. We expect an array.
+      const tags = Array.isArray(tagsResult) ? tagsResult : [tagsResult];
       const tagNames = tags.map((t: any) => t.label.split(',')[0]);
       const topStyle = tagNames[0] || "Classic Elegance";
 
@@ -176,7 +183,8 @@ export class FashionAnalysisService {
         trendReport: {
           current: ["Oversized Silhouettes", "Earth Tones", "Sustainable Fabrics"],
           upcoming: ["Digital Prints", "Vintage Revival", "Statement Sleeves"],
-          compatibility: Math.floor(tags[0]?.score * 100) || 85
+          // FIX: tags[0]?.score could be missing—use typecheck and default to 85
+          compatibility: typeof tags[0]?.score === "number" ? Math.floor(tags[0].score * 100) : 85
         },
         outfitSuggestions: [
           {
