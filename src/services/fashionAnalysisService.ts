@@ -165,6 +165,15 @@ export class FashionAnalysisService {
       );
 
       // --- Compose the real+fallback result ---
+      const compatibilityScore =
+        tags.find(
+          (t: any) =>
+            typeof t === "object" &&
+            t !== null &&
+            "score" in t &&
+            typeof t.score === "number"
+        )?.score;
+
       const result: AnalysisResult = {
         colorAnalysis: {
           dominant: colors,
@@ -183,8 +192,7 @@ export class FashionAnalysisService {
         trendReport: {
           current: ["Oversized Silhouettes", "Earth Tones", "Sustainable Fabrics"],
           upcoming: ["Digital Prints", "Vintage Revival", "Statement Sleeves"],
-          // FIX: tags[0]?.score could be missing—use typecheck and default to 85
-          compatibility: typeof tags[0]?.score === "number" ? Math.floor(tags[0].score * 100) : 85
+          compatibility: typeof compatibilityScore === "number" ? Math.floor(compatibilityScore * 100) : 85
         },
         outfitSuggestions: [
           {
