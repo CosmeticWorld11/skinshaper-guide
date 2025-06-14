@@ -60,8 +60,6 @@ const AppContent = () => {
       </Routes>
       <Chatbot />
       <UserPreferencesPanel />
-      <Toaster />
-      <Sonner />
     </BrowserRouter>
   );
 };
@@ -73,6 +71,8 @@ const App = () => {
         <AuthProvider>
           <TooltipProvider>
             <AppContent />
+            <Toaster />
+            <Sonner />
           </TooltipProvider>
         </AuthProvider>
       </QueryClientProvider>
