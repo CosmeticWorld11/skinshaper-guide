@@ -1,4 +1,5 @@
-import * as React from "react";
+
+import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, AlertCircle, Check, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
@@ -7,22 +8,22 @@ import { toast } from "sonner";
 import BackButton from "./BackButton"; // Import the BackButton component
 
 const AnalysisTool = () => {
-  const [selectedFile, setSelectedFile] = React.useState<File | null>(null);
-  const [previewUrl, setPreviewUrl] = React.useState<string | null>(null);
-  const [isAnalyzing, setIsAnalyzing] = React.useState(false);
-  const [analysisProgress, setAnalysisProgress] = React.useState(0);
-  const [analysisResults, setAnalysisResults] = React.useState<null | {
+  const [selectedFile, setSelectedFile] = useState<File | null>(null);
+  const [previewUrl, setPreviewUrl] = useState<string | null>(null);
+  const [isAnalyzing, setIsAnalyzing] = useState(false);
+  const [analysisProgress, setAnalysisProgress] = useState(0);
+  const [analysisResults, setAnalysisResults] = useState<null | {
     skinType: string;
     concerns: string[];
     recommendations: string[];
   }>(null);
-  const [showCamera, setShowCamera] = React.useState(false);
-  const videoRef = React.useRef<HTMLVideoElement>(null);
-  const fileInputRef = React.useRef<HTMLInputElement>(null);
-  const streamRef = React.useRef<MediaStream | null>(null);
+  const [showCamera, setShowCamera] = useState(false);
+  const videoRef = useRef<HTMLVideoElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const streamRef = useRef<MediaStream | null>(null);
 
   // Cleanup camera stream when component unmounts
-  React.useEffect(() => {
+  useEffect(() => {
     return () => {
       if (streamRef.current) {
         streamRef.current.getTracks().forEach(track => track.stop());
@@ -372,3 +373,4 @@ const AnalysisTool = () => {
 };
 
 export default AnalysisTool;
+

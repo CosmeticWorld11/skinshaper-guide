@@ -1,13 +1,13 @@
 
-import * as React from "react";
+import React, { useEffect, useRef } from "react";
 import { Button } from "@/components/ui/button";
 import { ArrowRight, Camera, Upload, TrendingUp, Sparkles, Leaf } from "lucide-react";
 import { Link } from "react-router-dom";
 
 const Hero = () => {
-  const heroRef = React.useRef<HTMLDivElement>(null);
+  const heroRef = useRef<HTMLDivElement>(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const observer = new IntersectionObserver(
       ([entry]) => {
         if (entry.isIntersecting) {
