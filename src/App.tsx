@@ -64,15 +64,15 @@ const AppContent = () => {
 };
 
 const App = () => (
-  <TooltipProvider>
-    <QueryClientProvider client={queryClient}>
-      <AuthProvider>
+  <QueryClientProvider client={queryClient}>
+    <AuthProvider>
+      <TooltipProvider>
         <Toaster />
         <Sonner />
         <AppContent />
-      </AuthProvider>
-    </QueryClientProvider>
-  </TooltipProvider>
+      </TooltipProvider>
+    </AuthProvider>
+  </QueryClientProvider>
 );
 
 export default App;
