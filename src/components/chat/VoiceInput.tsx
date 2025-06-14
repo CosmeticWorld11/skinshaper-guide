@@ -61,6 +61,9 @@ const VoiceInput: React.FC<VoiceInputProps> = ({ onTranscript, disabled = false 
           case 'network':
             errorMessage = 'Network error occurred during voice recognition.';
             break;
+          case 'not-allowed':
+            errorMessage = 'Microphone permission denied. Please allow microphone access.';
+            break;
           default:
             errorMessage = `Speech recognition error: ${event.error}`;
         }
