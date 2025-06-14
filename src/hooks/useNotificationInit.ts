@@ -14,8 +14,8 @@ export const useNotificationInit = () => {
       }
     };
 
-    // Add a small delay to ensure DOM is ready and avoid race conditions
-    const timer = setTimeout(initializeNotifications, 200);
+    // Add a small delay to ensure DOM is ready
+    const timer = setTimeout(initializeNotifications, 100);
     
     return () => clearTimeout(timer);
   }, []);
