@@ -12,15 +12,16 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const AuthContext = createContext<AuthContextType | undefined>(undefined);
+const AuthContext = createContext<AuthContextType>({
+  user: null,
+  isLoading: true,
+  isAuthenticated: false,
+  login: async () => ({ success: false, message: "Auth context not initialized" }),
+  register: async () => ({ success: false, message: "Auth context not initialized" }),
+  logout: () => {},
+});
 
-export const useAuth = () => {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
-};
+export const useAuth = () => useContext(AuthContext);
 
 export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [user, setUser] = useState<Omit<User, "password"> | null>(null);
@@ -75,17 +76,17 @@ export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) =>
     toast.info("Logged out successfully");
   };
 
-  const value: AuthContextType = {
-    user,
-    isLoading,
-    isAuthenticated: !!user,
-    login,
-    register,
-    logout,
-  };
-
   return (
-    <AuthContext.Provider value={value}>
+    <AuthContext.Provider
+      value={{
+        user,
+        isLoading,
+        isAuthenticated: !!user,
+        login,
+        register,
+        logout,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
