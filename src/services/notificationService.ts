@@ -1,3 +1,4 @@
+
 export interface NotificationAction {
   action: string;
   title: string;
@@ -31,32 +32,12 @@ export interface ScheduledNotification {
 class NotificationService {
   private static instance: NotificationService | null = null;
   private registrationPromise: Promise<ServiceWorkerRegistration> | null = null;
-  private initialized = false;
 
   static getInstance(): NotificationService {
     if (!this.instance) {
       this.instance = new NotificationService();
     }
     return this.instance;
-  }
-
-  async initialize(): Promise<void> {
-    if (this.initialized) return;
-    
-    try {
-      // Register service worker if available
-      if ('serviceWorker' in navigator) {
-        await navigator.serviceWorker.register('/sw.js');
-      }
-      
-      // Restore scheduled notifications from storage
-      await this.restoreScheduledNotifications();
-      
-      this.initialized = true;
-      console.log('NotificationService initialized');
-    } catch (error) {
-      console.error('Failed to initialize NotificationService:', error);
-    }
   }
 
   async requestPermission(): Promise<NotificationPermission> {
@@ -121,7 +102,6 @@ class NotificationService {
     const delay = notification.scheduledTime.getTime() - now.getTime();
 
     if (delay <= 0) {
-      console.warn('Cannot schedule notification in the past');
       return false;
     }
 
@@ -130,21 +110,19 @@ class NotificationService {
 
     // Schedule the notification
     setTimeout(async () => {
-      const success = await this.showNotification(notification.options);
+      await this.showNotification(notification.options);
       
-      if (success) {
-        // Handle recurring notifications
-        if (notification.recurring) {
-          const nextNotification = this.getNextRecurringNotification(notification);
-          if (nextNotification) {
-            await this.scheduleNotification(nextNotification);
-          }
+      // Handle recurring notifications
+      if (notification.recurring) {
+        const nextNotification = this.getNextRecurringNotification(notification);
+        if (nextNotification) {
+          await this.scheduleNotification(nextNotification);
         }
-        
-        // Remove from storage if not recurring
-        if (!notification.recurring) {
-          this.removeScheduledNotification(notification.id);
-        }
+      }
+      
+      // Remove from storage if not recurring
+      if (!notification.recurring) {
+        this.removeScheduledNotification(notification.id);
       }
     }, delay);
 
@@ -187,72 +165,24 @@ class NotificationService {
     return this.registrationPromise;
   }
 
-  private async restoreScheduledNotifications(): Promise<void> {
-    try {
-      const stored = localStorage.getItem('scheduledNotifications');
-      if (!stored) return;
-      
-      const notifications: ScheduledNotification[] = JSON.parse(stored);
-      const now = new Date();
-      const validNotifications: ScheduledNotification[] = [];
-      
-      for (const notification of notifications) {
-        const scheduledTime = new Date(notification.scheduledTime);
-        
-        if (scheduledTime > now) {
-          // Re-schedule valid future notifications
-          await this.scheduleNotification(notification);
-          validNotifications.push(notification);
-        }
-      }
-      
-      // Update storage with only valid notifications
-      localStorage.setItem('scheduledNotifications', JSON.stringify(validNotifications));
-      
-      console.log(`Restored ${validNotifications.length} scheduled notifications`);
-    } catch (error) {
-      console.error('Error restoring scheduled notifications:', error);
-    }
-  }
-
   private saveScheduledNotification(notification: ScheduledNotification): void {
-    try {
-      const stored = localStorage.getItem('scheduledNotifications');
-      const notifications: ScheduledNotification[] = stored ? JSON.parse(stored) : [];
-      
-      // Remove any existing notification with the same ID
-      const filtered = notifications.filter(n => n.id !== notification.id);
-      filtered.push(notification);
-      
-      localStorage.setItem('scheduledNotifications', JSON.stringify(filtered));
-    } catch (error) {
-      console.error('Error saving scheduled notification:', error);
-    }
+    const stored = localStorage.getItem('scheduledNotifications');
+    const notifications: ScheduledNotification[] = stored ? JSON.parse(stored) : [];
+    
+    notifications.push(notification);
+    localStorage.setItem('scheduledNotifications', JSON.stringify(notifications));
   }
 
   private removeScheduledNotification(id: string): void {
-    try {
-      const stored = localStorage.getItem('scheduledNotifications');
-      if (!stored) return;
-      
-      const notifications: ScheduledNotification[] = JSON.parse(stored);
-      const filtered = notifications.filter(n => n.id !== id);
-      localStorage.setItem('scheduledNotifications', JSON.stringify(filtered));
-    } catch (error) {
-      console.error('Error removing scheduled notification:', error);
-    }
+    const stored = localStorage.getItem('scheduledNotifications');
+    if (!stored) return;
+    
+    const notifications: ScheduledNotification[] = JSON.parse(stored);
+    const filtered = notifications.filter(n => n.id !== id);
+    localStorage.setItem('scheduledNotifications', JSON.stringify(filtered));
   }
 
-  // Utility method to clear all scheduled notifications
-  async clearAllScheduledNotifications(): Promise<void> {
-    try {
-      localStorage.removeItem('scheduledNotifications');
-      console.log('All scheduled notifications cleared');
-    } catch (error) {
-      console.error('Error clearing scheduled notifications:', error);
-    }
-  }
-
+  // Beauty-specific notification methods
   async scheduleRoutineReminder(routineName: string, time: Date, recurring: 'daily' | 'weekly' = 'daily'): Promise<boolean> {
     const notification: ScheduledNotification = {
       id: `routine_${routineName}_${Date.now()}`,
