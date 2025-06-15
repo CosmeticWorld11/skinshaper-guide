@@ -1,10 +1,11 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Camera, Upload, AlertCircle, Check, RefreshCw } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
 import { Link } from "react-router-dom";
 import { toast } from "sonner";
-import BackButton from "./BackButton";
+import BackButton from "./BackButton"; // Import the BackButton component
 
 const AnalysisTool = () => {
   const [selectedFile, setSelectedFile] = useState<File | null>(null);
@@ -17,7 +18,6 @@ const AnalysisTool = () => {
     recommendations: string[];
   }>(null);
   const [showCamera, setShowCamera] = useState(false);
-  const [isCameraLoading, setIsCameraLoading] = useState(false);
   const videoRef = useRef<HTMLVideoElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const streamRef = useRef<MediaStream | null>(null);
@@ -55,97 +55,48 @@ const AnalysisTool = () => {
   };
 
   const startCamera = async () => {
-    setIsCameraLoading(true);
     try {
-      // Check if camera is supported
-      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-        throw new Error("Camera not supported in this browser");
-      }
-
-      // Request camera permission with specific constraints
+      // Request camera permission
       const stream = await navigator.mediaDevices.getUserMedia({ 
-        video: { 
-          facingMode: "user",
-          width: { ideal: 1280 },
-          height: { ideal: 720 }
-        },
+        video: { facingMode: "user" },
         audio: false
       });
       
       // Store the stream reference for cleanup
       streamRef.current = stream;
       
-      // Wait for video element to be ready
+      // Set the video source
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
-        
-        // Wait for the video to load metadata
-        await new Promise<void>((resolve, reject) => {
-          if (videoRef.current) {
-            videoRef.current.onloadedmetadata = () => {
-              if (videoRef.current) {
-                videoRef.current.play()
-                  .then(() => resolve())
-                  .catch(reject);
-              }
-            };
-            videoRef.current.onerror = reject;
-          }
-        });
       }
       
       setShowCamera(true);
-      toast.success("Camera started successfully");
+      toast.success("Camera accessed successfully");
     } catch (err) {
       console.error("Error accessing camera:", err);
-      let errorMessage = "Could not access camera. ";
-      
-      if (err instanceof Error) {
-        if (err.message.includes("Permission denied")) {
-          errorMessage += "Please allow camera permissions and try again.";
-        } else if (err.message.includes("not supported")) {
-          errorMessage += "Camera is not supported in this browser.";
-        } else {
-          errorMessage += "Please check your camera and try again.";
-        }
-      }
-      
-      toast.error(errorMessage);
-    } finally {
-      setIsCameraLoading(false);
+      toast.error("Could not access camera. Please check permissions.");
     }
   };
 
   const capturePhoto = () => {
-    if (videoRef.current && videoRef.current.readyState >= 2) {
+    if (videoRef.current) {
       const canvas = document.createElement("canvas");
-      const video = videoRef.current;
-      
-      // Set canvas dimensions to match video
-      canvas.width = video.videoWidth || 640;
-      canvas.height = video.videoHeight || 480;
-      
+      canvas.width = videoRef.current.videoWidth;
+      canvas.height = videoRef.current.videoHeight;
       const ctx = canvas.getContext("2d");
       if (ctx) {
-        // Draw the current video frame to canvas
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        
-        // Convert canvas to blob
+        ctx.drawImage(videoRef.current, 0, 0);
         canvas.toBlob((blob) => {
           if (blob) {
-            const file = new File([blob], `camera-photo-${Date.now()}.jpg`, { type: "image/jpeg" });
+            const file = new File([blob], "camera-photo.jpg", { type: "image/jpeg" });
             setSelectedFile(file);
             setPreviewUrl(URL.createObjectURL(file));
             stopCamera();
             setAnalysisResults(null);
             toast.success("Photo captured successfully");
-          } else {
-            toast.error("Failed to capture photo. Please try again.");
           }
-        }, "image/jpeg", 0.9);
+        }, "image/jpeg");
       }
-    } else {
-      toast.error("Camera not ready. Please wait a moment and try again.");
     }
   };
 
@@ -162,7 +113,6 @@ const AnalysisTool = () => {
     }
     
     setShowCamera(false);
-    setIsCameraLoading(false);
   };
 
   const triggerFileInput = () => {
@@ -217,7 +167,7 @@ const AnalysisTool = () => {
 
   return (
     <section className="py-20 px-4 bg-gradient-to-b from-white to-skin-50 relative">
-      <BackButton />
+      <BackButton /> {/* Add the BackButton component */}
       <div className="container mx-auto max-w-5xl">
         <div className="text-center mb-12">
           <h2 className="text-3xl md:text-4xl font-serif font-semibold mb-4">
@@ -275,10 +225,9 @@ const AnalysisTool = () => {
                         onClick={startCamera}
                         variant="outline"
                         className="border-primary text-primary hover:bg-primary/10"
-                        disabled={isCameraLoading}
                       >
                         <Camera className="h-4 w-4 mr-2" />
-                        {isCameraLoading ? "Starting..." : "Take Photo"}
+                        Take Photo
                       </Button>
                     </div>
                     <input
@@ -292,28 +241,21 @@ const AnalysisTool = () => {
                 )}
               </div>
             ) : (
-              <div className="relative h-80 rounded-xl overflow-hidden bg-black">
+              <div className="relative h-80 rounded-xl overflow-hidden">
                 <video
                   ref={videoRef}
                   autoPlay
                   playsInline
-                  muted
                   className="w-full h-full object-cover"
                 />
                 <div className="absolute bottom-4 left-0 right-0 flex justify-center gap-4">
-                  <Button 
-                    onClick={capturePhoto} 
-                    className="bg-primary hover:bg-primary/90"
-                    size="lg"
-                  >
-                    <Camera className="h-4 w-4 mr-2" />
+                  <Button onClick={capturePhoto} className="bg-primary">
                     Capture
                   </Button>
                   <Button
                     onClick={stopCamera}
                     variant="outline"
-                    className="bg-white/90 hover:bg-white"
-                    size="lg"
+                    className="bg-white/80"
                   >
                     Cancel
                   </Button>
@@ -431,3 +373,4 @@ const AnalysisTool = () => {
 };
 
 export default AnalysisTool;
+
