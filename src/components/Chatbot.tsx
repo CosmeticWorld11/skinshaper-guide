@@ -1,9 +1,9 @@
+
 import React, { useState, useRef, useEffect } from "react";
 import { MessageCircle, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "@/hooks/use-toast";
 import { geminiService } from "@/services/geminiService";
-import { userPreferencesService } from "@/services/userPreferencesService";
 import { useLocation } from "react-router-dom";
 
 // Import the chat components
@@ -29,23 +29,20 @@ const Chatbot = () => {
   const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState<Message[]>(() => {
-    // Only load saved messages if user preferences allow it
-    const preferences = userPreferencesService.getPreferences();
-    if (preferences.chatHistory) {
-      const savedMessages = localStorage.getItem(STORAGE_KEY);
-      if (savedMessages) {
-        try {
-          const parsedMessages = JSON.parse(savedMessages, (key, value) => {
-            if (key === 'timestamp' && value) {
-              return new Date(value);
-            }
-            return value;
-          });
-          return parsedMessages;
-        } catch (error) {
-          console.error("Error parsing saved messages:", error);
-          return initialMessages;
-        }
+    // Load saved messages from localStorage
+    const savedMessages = localStorage.getItem(STORAGE_KEY);
+    if (savedMessages) {
+      try {
+        const parsedMessages = JSON.parse(savedMessages, (key, value) => {
+          if (key === 'timestamp' && value) {
+            return new Date(value);
+          }
+          return value;
+        });
+        return parsedMessages;
+      } catch (error) {
+        console.error("Error parsing saved messages:", error);
+        return initialMessages;
       }
     }
     return initialMessages;
@@ -60,10 +57,9 @@ const Chatbot = () => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Save messages to localStorage only if user preferences allow it
+  // Save messages to localStorage whenever they change
   useEffect(() => {
-    const preferences = userPreferencesService.getPreferences();
-    if (messages.length > 0 && preferences.chatHistory) {
+    if (messages.length > 0) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(messages));
     }
   }, [messages]);
@@ -143,19 +139,16 @@ const Chatbot = () => {
     setIsTyping(true);
 
     try {
-      // Get enhanced context with user preferences
-      const userContext = userPreferencesService.getAIContext();
-      const chatContext = messages
+      // Get website context
+      const context = messages
         .slice(-3) // Get last 3 messages for context
         .map(msg => `${msg.isUser ? 'User' : 'Assistant'}: ${msg.content}`)
         .join("\n");
       
       const pageContext = `Current page: ${location.pathname}`;
-      const fullContext = [userContext, chatContext, pageContext]
-        .filter(Boolean)
-        .join("\n");
+      const fullContext = `${context}\n${pageContext}`;
       
-      console.log("Sending request to Gemini API with personalized context");
+      console.log("Sending request to Gemini API with image:", !!image);
       const aiResponse = await geminiService.generateResponse(
         message,
         fullContext,

@@ -2,7 +2,6 @@
 import React from "react";
 import { Bot, User, ThumbsUp, ThumbsDown } from "lucide-react";
 import { cn } from "@/lib/utils";
-import MarkdownRenderer from "./MarkdownRenderer";
 
 export type Message = {
   id: string;
@@ -47,21 +46,12 @@ const ChatMessage: React.FC<ChatMessageProps> = ({ message, onFeedback }) => {
             {formatTime(message.timestamp)}
           </span>
         </div>
-        
-        {/* Use markdown renderer for bot messages, simple text for user messages */}
-        {message.isUser ? (
-          <div 
-            className="text-sm"
-            dangerouslySetInnerHTML={{ 
-              __html: message.content.replace(/\n/g, '<br>') 
-            }}
-          />
-        ) : (
-          <MarkdownRenderer 
-            content={message.content} 
-            className="text-sm text-inherit"
-          />
-        )}
+        <div 
+          className="text-sm"
+          dangerouslySetInnerHTML={{ 
+            __html: message.content.replace(/\n/g, '<br>') 
+          }}
+        />
       </div>
       
       {/* Feedback buttons for bot messages */}
