@@ -16,11 +16,6 @@ export interface NotificationOptions {
   data?: any;
 }
 
-// Service Worker specific notification options
-interface ServiceWorkerNotificationOptions extends NotificationOptions {
-  actions: NotificationAction[];
-}
-
 export interface ScheduledNotification {
   id: string;
   type: 'routine' | 'product' | 'reminder';
@@ -70,18 +65,15 @@ class NotificationService {
       
       if (registration) {
         // Use service worker notification with actions support
-        const swOptions: ServiceWorkerNotificationOptions = {
+        await registration.showNotification(options.title, {
           body: options.body,
           icon: options.icon || '/favicon.ico',
           badge: options.badge || '/favicon.ico',
           tag: options.tag,
           requireInteraction: options.requireInteraction || false,
           actions: options.actions || [],
-          data: options.data,
-          title: options.title
-        };
-        
-        await registration.showNotification(options.title, swOptions);
+          data: options.data
+        });
       } else {
         // Fallback to regular notification (no actions support)
         new Notification(options.title, {
@@ -249,6 +241,91 @@ class NotificationService {
     };
 
     return this.scheduleNotification(notification);
+  }
+
+  async scheduleNotification(notification: ScheduledNotification): Promise<boolean> {
+    const now = new Date();
+    const delay = notification.scheduledTime.getTime() - now.getTime();
+
+    if (delay <= 0) {
+      return false;
+    }
+
+    // Store scheduled notification
+    this.saveScheduledNotification(notification);
+
+    // Schedule the notification
+    setTimeout(async () => {
+      await this.showNotification(notification.options);
+      
+      // Handle recurring notifications
+      if (notification.recurring) {
+        const nextNotification = this.getNextRecurringNotification(notification);
+        if (nextNotification) {
+          await this.scheduleNotification(nextNotification);
+        }
+      }
+      
+      // Remove from storage if not recurring
+      if (!notification.recurring) {
+        this.removeScheduledNotification(notification.id);
+      }
+    }, delay);
+
+    return true;
+  }
+
+  private getNextRecurringNotification(notification: ScheduledNotification): ScheduledNotification | null {
+    const nextTime = new Date(notification.scheduledTime);
+    
+    switch (notification.recurring) {
+      case 'daily':
+        nextTime.setDate(nextTime.getDate() + 1);
+        break;
+      case 'weekly':
+        nextTime.setDate(nextTime.getDate() + 7);
+        break;
+      case 'monthly':
+        nextTime.setMonth(nextTime.getMonth() + 1);
+        break;
+      default:
+        return null;
+    }
+
+    return {
+      ...notification,
+      id: `${notification.id}_${Date.now()}`,
+      scheduledTime: nextTime
+    };
+  }
+
+  private async getServiceWorkerRegistration(): Promise<ServiceWorkerRegistration | null> {
+    if (!('serviceWorker' in navigator)) {
+      return null;
+    }
+
+    if (!this.registrationPromise) {
+      this.registrationPromise = navigator.serviceWorker.getRegistration();
+    }
+
+    return this.registrationPromise;
+  }
+
+  private saveScheduledNotification(notification: ScheduledNotification): void {
+    const stored = localStorage.getItem('scheduledNotifications');
+    const notifications: ScheduledNotification[] = stored ? JSON.parse(stored) : [];
+    
+    notifications.push(notification);
+    localStorage.setItem('scheduledNotifications', JSON.stringify(notifications));
+  }
+
+  private removeScheduledNotification(id: string): void {
+    const stored = localStorage.getItem('scheduledNotifications');
+    if (!stored) return;
+    
+    const notifications: ScheduledNotification[] = JSON.parse(stored);
+    const filtered = notifications.filter(n => n.id !== id);
+    localStorage.setItem('scheduledNotifications', JSON.stringify(filtered));
   }
 }
 
