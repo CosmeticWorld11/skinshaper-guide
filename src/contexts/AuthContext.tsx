@@ -1,5 +1,5 @@
 
-import * as React from "react";
+import React, { createContext, useContext, useState, useEffect, ReactNode } from "react";
 import { authService, User, AuthResponse } from "../services/authService";
 import { toast } from "sonner";
 
@@ -12,7 +12,7 @@ interface AuthContextType {
   logout: () => void;
 }
 
-const AuthContext = React.createContext<AuthContextType>({
+const AuthContext = createContext<AuthContextType>({
   user: null,
   isLoading: true,
   isAuthenticated: false,
@@ -21,13 +21,13 @@ const AuthContext = React.createContext<AuthContextType>({
   logout: () => {},
 });
 
-export const useAuth = () => React.useContext(AuthContext);
+export const useAuth = () => useContext(AuthContext);
 
-export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  const [user, setUser] = React.useState<Omit<User, "password"> | null>(null);
-  const [isLoading, setIsLoading] = React.useState(true);
+export const AuthProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
+  const [user, setUser] = useState<Omit<User, "password"> | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  React.useEffect(() => {
+  useEffect(() => {
     const loadUser = async () => {
       try {
         const currentUser = await authService.getCurrentUser();
